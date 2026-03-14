@@ -12,6 +12,7 @@ It enables LLMs and autonomous agents to perform tasks like:
 - Typing into inputs
 - Extracting page text
 - Taking screenshots
+- Many more future upgrades (in-progress)
 
 This makes it possible to build AI-powered browser automation systems and autonomous QA agents.
 
