@@ -1,4 +1,8 @@
 # selenium-mcp-server
+![Python](https://img.shields.io/badge/python-3.10+-blue)
+![Selenium](https://img.shields.io/badge/selenium-automation-green)
+![MCP](https://img.shields.io/badge/MCP-AI%20Agents-purple)
+
 Selenium WebDriver MCP server that enables LLMs & AI agents to control real browsers using Selenium and MCP.
 
 This project exposes Selenium WebDriver as an MCP (Model Context Protocol) server, allowing AI agents to control a real browser through structured tools.
@@ -48,45 +52,58 @@ AI Agent / LLM --> MCP Protocol --> Selenium MCP Server --> Selenium WebDriver -
 
 ### Clone the repository
 
+```bash
 git clone https://github.com/nayakprashant/selenium-mcp-server.git
 
 cd selenium-mcp-server
+```
 
 ### Create a virtual environment
 
+```bash
 python -m venv .venv
+```
 
 ### Activate the environment
 
 #### Mac / Linux
+```bash
 source .venv/bin/activate
+```
 
-##### Windows
+#### Windows
+```bash
 .venv\Scripts\activate
+```
 
 ### Install dependencies
-
+```bash
 pip install -r requirements.txt
+```
 
 ## ENVIRONMENT CONFIGURATION
 
 Create a .env file in the root of the project.
 
 Add the following variable:
+```python
 MCP_SCREENSHOT_DIR=/path/to/screenshot/directory
+```
 
 ### Example:
+```python
 MCP_SCREENSHOT_DIR=/Users/yourname/screenshots
-
+```
 This variable defines the directory where screenshots captured by the take_screenshot tool will be saved.
 
-Make sure the directory exists and the application has permission to write files to it.
+Make sure the directory exists, and the application has permission to write files to it.
 
 ## RUNNING THE SERVER
 
 #### Start the MCP server
+```bash
 python server.py
-
+```
 This launches the Selenium MCP server and exposes browser automation tools to AI agents.
 
 ## BROWSER SESSION FLOW
@@ -142,15 +159,16 @@ take_screenshot – Capture a screenshot of the current browser window
 Screenshots are saved to the system temporary directory by default.
 
 To change the location, set the environment variable:
+```python
 MCP_SCREENSHOT_DIR
-
+```
 ## EXAMPLE AGENT WORKFLOW
 
 ### Example task: 
 Search Google for "Selenium MCP"
 
 #### Agent steps:
-
+```python
 open_browser
 
 open_url("https://google.com")
@@ -166,6 +184,7 @@ click_element(index)
 wait_for_page
 
 get_page_text
+```
 
 ## REQUIREMENTS
 - Python 3.10+
@@ -197,7 +216,10 @@ Contributions are welcome.
 MIT License
 
 ## AUTHOR
+
 Prashant Nayak
+
+🔗 LinkedIn: https://www.linkedin.com/in/prashantjnayak
 
 Built to help the QA and AI automation community build intelligent browser automation systems.
 
