@@ -31,9 +31,11 @@ async def main():
             tool_defs = []
 
             amazon_workflow = "" \
-                "1. Open chrome browser and maximize it." \
+                "1. Open Firefox browser and maximize it." \
                 "2. Navigate to https://www.amazon.in/" \
-                "3. Capture the screenshot of the page"
+                "3. Capture the screenshot of the page" \
+                "4. Close the browser"
+
             angular_demo = "" \
                 "1. Open Chrome browser and maximize it." \
                 "2. Navigate to https://material.angularjs.org/latest/demo/menu" \
@@ -94,7 +96,7 @@ async def main():
                  },
                 {
                     "role": "user",
-                    "content": f"{amazon_workflow}"
+                    "content": f"{angular_demo}"
                 }
             ]
 
