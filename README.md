@@ -68,14 +68,14 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 
-### ENVIRONMENT CONFIGURATION
+## ENVIRONMENT CONFIGURATION
 
 Create a .env file in the root of the project.
 
 Add the following variable:
 MCP_SCREENSHOT_DIR=/path/to/screenshot/directory
 
-#### Example:
+### Example:
 MCP_SCREENSHOT_DIR=/Users/yourname/screenshots
 
 This variable defines the directory where screenshots captured by the take_screenshot tool will be saved.
