@@ -276,7 +276,7 @@ You may modify or extend the system prompt depending on your use case. However, 
 * navigation handling
 * safety limits
 
-## Logging
+## LOGGING
 All application logs are written to the `logs/` directory located at the project root.
 
 Features:
