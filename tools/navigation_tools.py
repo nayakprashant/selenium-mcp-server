@@ -1,4 +1,4 @@
-from instance.mcp_instance import mcp
+from core.mcp_instance import mcp
 from core.session_manager import *
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
