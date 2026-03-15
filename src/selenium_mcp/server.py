@@ -15,7 +15,7 @@ from selenium_mcp.tools.debug_tools import *
 from selenium_mcp.utils.logger import logger
 
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 
 def run_server():
