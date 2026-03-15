@@ -1,4 +1,4 @@
-# selenium-mcp
+# Selenium MCP Server
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
 ![Selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
 ![MCP](https://img.shields.io/badge/MCP-AI%20Agents-purple)
