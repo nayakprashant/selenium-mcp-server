@@ -47,7 +47,12 @@ flowchart TD
     C --> G[Element Tools]
     C --> H[Debug Tools]
 
-    C --> I[Selenium WebDriver]
+    D --> I[Selenium WebDriver]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    
     I --> J[Browser]
 ```
 
