@@ -1,8 +1,8 @@
 # selenium-mcp-server
-![Python](https://img.shields.io/badge/python-3.10+-blue)
-![Selenium](https://img.shields.io/badge/selenium-automation-green)
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![Selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
 ![MCP](https://img.shields.io/badge/MCP-AI%20Agents-purple)
-![By](https://img.shields.io/badge/By-Prashant%20Nayak-black)
+![Author](https://img.shields.io/badge/Author-Prashant%20Nayak-black)
 
 Selenium WebDriver MCP server that enables LLMs & AI agents to control real browsers using Selenium and MCP.
 
