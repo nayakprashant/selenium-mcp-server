@@ -12,7 +12,7 @@ from selenium.webdriver.edge.service import Service as EdgeService
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-from utils.logger import logger
+from selenium_mcp.utils.logger import logger
 
 
 def create_driver(browser="chrome", headless=False):

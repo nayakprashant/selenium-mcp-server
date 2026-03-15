@@ -1,7 +1,7 @@
 import random
 import string
 import secrets
-from utils.logger import logger
+from selenium_mcp.utils.logger import logger
 
 
 def random_string(length=8):

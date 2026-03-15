@@ -1,8 +1,8 @@
-from core.mcp_instance import mcp
-from core.browser_factory import create_driver
-from core.session_manager import *
+from selenium_mcp.core.mcp_instance import mcp
+from selenium_mcp.core.browser_factory import create_driver
+from selenium_mcp.core.session_manager import *
 
-from utils.logger import logger
+from selenium_mcp.utils.logger import logger
 
 import uuid
 

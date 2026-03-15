@@ -1,8 +1,8 @@
-from core.mcp_instance import mcp
-from core.session_manager import *
+from selenium_mcp.core.mcp_instance import mcp
+from selenium_mcp.core.session_manager import *
 import os
-from utils.logger import logger
-from utils.generics import hex_token
+from selenium_mcp.utils.logger import logger
+from selenium_mcp.utils.generics import hex_token
 
 SCREENSHOT_DIR = os.getenv("MCP_SCREENSHOT_DIR")
 

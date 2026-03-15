@@ -2,12 +2,12 @@ import subprocess
 import json
 import sys
 import time
-from utils.logger import logger
+from src.selenium_mcp.utils.logger import logger
 
 logger.info("Selenium MCP Server Test Status: STARTED")
 
 proc = subprocess.Popen(
-    [sys.executable, "server.py"],
+    [sys.executable, "-m", "src.selenium_mcp.server"],
     stdin=subprocess.PIPE,
     stdout=subprocess.PIPE,
     text=True

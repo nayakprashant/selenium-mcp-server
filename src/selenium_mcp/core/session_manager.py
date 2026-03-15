@@ -1,4 +1,4 @@
-from utils.logger import logger
+from selenium_mcp.utils.logger import logger
 
 sessions = {}
 element_cache = {}
