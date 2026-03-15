@@ -2,6 +2,9 @@ import subprocess
 import json
 import sys
 import time
+from utils.logger import logger
+
+logger.info("Selenium MCP Server Test Status: STARTED")
 
 proc = subprocess.Popen(
     [sys.executable, "server.py"],
@@ -35,8 +38,7 @@ send({
     }
 })
 
-print("Initialize response:")
-print(receive())
+receive()
 
 # STEP 2: Send initialized notification
 send({
@@ -53,5 +55,19 @@ send({
     "method": "tools/list"
 })
 
-print("Tools list:")
-print(receive())
+tool_list = []
+
+response = receive()
+data = json.loads(response)
+
+tools = data["result"]["tools"]
+
+for tool in tools:
+    tool_list.append(tool["name"])
+
+logger.info(f"List of tools available: {tool_list}")
+
+if len(tools) > 0:
+    logger.info(f"Selenium MCP Server Test Status: SUCCESS")
+else:
+    logger.error(f"Selenium MCP Server Test Status: FAILED")

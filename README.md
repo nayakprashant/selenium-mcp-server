@@ -125,6 +125,20 @@ python -m server
 ```
 This launches the Selenium MCP server and exposes browser automation tools to AI agents.
 
+## TESTING THE SERVER
+Run the following command to verify that the MCP server is running correctly:
+```bash
+python -m test.mcp_test 
+```
+This script checks whether the Selenium MCP server is initialized successfully and whether the required tools are available.
+
+If the server is set up correctly, you should see the following message in the terminal or logs:
+
+```bash
+Selenium MCP Server Test Status: SUCCESS
+```
+If the setup fails, the logs will display an error message indicating that the server test did not pass.
+
 ## BROWSER SESSION FLOW
 
 Each browser session is identified by a `session_id`.
