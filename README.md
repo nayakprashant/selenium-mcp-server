@@ -216,33 +216,92 @@ wait_for_page
 
 get_page_text
 ```
+## SYSTEM PROMPT FOR AI AGENTS
+
+This repository includes a **production-grade system prompt** designed specifically for browser automation agents that interact with this Selenium MCP server.
+
+The prompt contains detailed operational guidelines that instruct the AI agent on how to:
+
+* initialize and control the browser
+* discover and interact with UI elements
+* analyze page structure using the accessibility tree
+* avoid hallucinating element indexes
+* handle navigation and page reloads
+* recover from stale elements
+* follow a deterministic execution loop (PLAN → ACT → OBSERVE → UPDATE PLAN)
+* enforce safety limits on tool usage
+
+### Prompt Location
+```
+prompts/system_prompt.py
+```
+
+### How to Use
+
+Whenever you build an AI agent that interacts with this MCP server, **this prompt should be provided as the system prompt** for the model.
+
+Example:
+
+```python
+from prompts.system_prompt import SYSTEM_PROMPT
+
+messages = [
+    {"role": "system", "content": SYSTEM_PROMPT},
+    {"role": "user", "content": "Your task here"}
+]
+```
+
+### Why This Prompt Is Important
+
+Browser automation agents can easily make incorrect decisions if not guided properly.
+This system prompt provides **strict operational rules and guardrails** that help the agent:
+
+* use MCP tools correctly
+* avoid incorrect element interactions
+* minimize hallucinations
+* perform reliable browser automation tasks
+
+Using this prompt significantly improves the **stability, accuracy, and reliability** of AI-driven browser automation.
+
+### Recommendation
+
+It is strongly recommended that **all AI agents interacting with this Selenium MCP server use this system prompt** to ensure consistent and reliable behavior.
+
+## Prompt Customization
+
+You may modify or extend the system prompt depending on your use case. However, it is recommended to preserve the core operational rules related to:
+
+* MCP tool usage
+* element discovery
+* navigation handling
+* safety limits
 
 ## Logging
 All application logs are written to the `logs/` directory located at the project root.
 
 Features:
-- Daily log file rotation
-- Automatic cleanup of older log files
-- Logs written to both console and file
+* Daily log file rotation
+* Automatic cleanup of older log files
+* Logs written to both console and file
 
 This helps with easier debugging and monitoring of the MCP server.
 
 ## REQUIREMENTS
-- Python 3.10+
-- Selenium
-- Web browser
-- webdriver-manager
-- MCP Python SDK
+* Python 3.10+
+* Selenium
+* Web browser
+* webdriver-manager
+* MCP Python SDK
 
 ## USE CASES
 
 This project can be used to build:
-- AI test automation agents
-- Autonomous QA assistants
-- LLM-powered browser copilots
-- Self-healing test frameworks
-- AI web scraping agents
-- Intelligent UI testing systems
+* AI test automation agents
+* Autonomous QA assistants
+* LLM-powered browser copilots
+* Self-healing test frameworks
+* AI web scraping agents
+* Intelligent UI testing systems
 
 ## CONTRIBUTING
 
@@ -267,5 +326,5 @@ Built to help the QA and AI automation community build intelligent browser autom
 ## SUPPORT THE PROJECT
 
 If this project helps you:
-- Star the repository
-- Share it with the QA community
+* Star the repository
+* Share it with the QA community
