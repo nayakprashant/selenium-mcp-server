@@ -36,7 +36,20 @@ This project bridges that gap by exposing Selenium functionality through MCP too
 
 ## ARCHITECTURE
 
-AI Agent / LLM --> MCP Protocol --> Selenium MCP Server --> Selenium WebDriver --> Web Browser
+```mermaid
+flowchart TD
+    A[LLM Agent] --> B[MCP Protocol]
+    B --> C[Selenium MCP Server]
+
+    C --> D[Browser Tools]
+    C --> E[Navigation Tools]
+    C --> F[Interaction Tools]
+    C --> G[Element Tools]
+    C --> H[Debug Tools]
+
+    C --> I[Selenium WebDriver]
+    I --> J[Browser]
+```
 
 ## FEATURES
 
@@ -84,7 +97,7 @@ pip install -r requirements.txt
 
 ## ENVIRONMENT CONFIGURATION
 
-Create a .env file in the root of the project.
+Create a `.env` file in the root of the project.
 
 Add the following variable:
 ```python
@@ -103,13 +116,13 @@ Make sure the directory exists, and the application has permission to write file
 
 #### Start the MCP server
 ```bash
-python server.py
+python -m server
 ```
 This launches the Selenium MCP server and exposes browser automation tools to AI agents.
 
 ## BROWSER SESSION FLOW
 
-Each browser session is identified by a session_id.
+Each browser session is identified by a `session_id`.
 
 ### Typical workflow for agents:
 1. open_browser
@@ -157,8 +170,6 @@ Useful for:
 ### VISUAL DEBUGGING
 take_screenshot – Capture a screenshot of the current browser window
 
-Screenshots are saved to the system temporary directory by default.
-
 To change the location, set the environment variable:
 ```python
 MCP_SCREENSHOT_DIR
@@ -186,6 +197,16 @@ wait_for_page
 
 get_page_text
 ```
+
+## Logging
+All application logs are written to the `logs/` directory located at the project root.
+
+Features:
+- Daily log file rotation
+- Automatic cleanup of older log files
+- Logs written to both console and file
+
+This helps with easier debugging and monitoring of the MCP server.
 
 ## REQUIREMENTS
 - Python 3.10+

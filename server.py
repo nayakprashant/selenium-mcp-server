@@ -1,4 +1,4 @@
-from mcp_instance import mcp
+from instance.mcp_instance import mcp
 
 from tools.browser_tools import *
 from tools.navigation_tools import *
@@ -9,6 +9,9 @@ from tools.debug_tools import *
 
 from utils.logger import logger
 
+SELENIUM_MCP_SERVER_VERSION = "0.2.1"
+
 if __name__ == "__main__":
-    logger.info("Selenium MCP server v0.2.0 started...")
+    logger.info(
+        f"Starting Selenium MCP Server v{SELENIUM_MCP_SERVER_VERSION}...")
     mcp.run(transport="stdio")

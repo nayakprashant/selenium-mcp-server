@@ -37,7 +37,7 @@ async def main():
                 "4. Close the browser"
 
             angular_demo = "" \
-                "1. Open Chrome browser and maximize it." \
+                "1. Open Chrome browser in headless mode and maximize it." \
                 "2. Navigate to https://material.angularjs.org/latest/demo/menu" \
                 "3. From the left hand side menu option - Click on 'Introduction and Terms' under 'THEMING." \
                 "4. Inside the main page on RHS, locate 'Theming Approach' header and click on it." \

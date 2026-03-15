@@ -1,4 +1,4 @@
-from mcp_instance import mcp
+from instance.mcp_instance import mcp
 from core.session_manager import *
 import os
 from utils.logger import logger

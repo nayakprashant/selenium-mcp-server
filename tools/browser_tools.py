@@ -1,4 +1,4 @@
-from mcp_instance import mcp
+from instance.mcp_instance import mcp
 from core.browser_factory import create_driver
 from core.session_manager import *
 

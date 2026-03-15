@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 
-from mcp_instance import mcp
+from instance.mcp_instance import mcp
 from core.session_manager import *
 from selenium.webdriver.common.by import By
 
