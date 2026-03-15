@@ -2,9 +2,9 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-
 logs/
 !logs/.gitkeep
+test/agent_test.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

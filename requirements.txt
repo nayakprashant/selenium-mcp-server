@@ -1,5 +1,4 @@
 mcp
 selenium
 webdriver-manager
-openai
 python-dotenv

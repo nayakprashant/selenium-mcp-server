@@ -1,8 +1,8 @@
 # selenium-mcp-server
-![Python](https://img.shields.io/badge/python-3.10+-blue)
-![Selenium](https://img.shields.io/badge/selenium-automation-green)
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![Selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
 ![MCP](https://img.shields.io/badge/MCP-AI%20Agents-purple)
-![By](https://img.shields.io/badge/By-Prashant%20Nayak-black)
+![Author](https://img.shields.io/badge/Author-Prashant%20Nayak-black)
 
 Selenium WebDriver MCP server that enables LLMs & AI agents to control real browsers using Selenium and MCP.
 
@@ -125,6 +125,20 @@ python -m server
 ```
 This launches the Selenium MCP server and exposes browser automation tools to AI agents.
 
+## TESTING THE SERVER
+Run the following command to verify that the MCP server is running correctly:
+```bash
+python -m test.mcp_test 
+```
+This script checks whether the Selenium MCP server is initialized successfully and whether the required tools are available.
+
+If the server is set up correctly, you should see the following message in the terminal or logs:
+
+```bash
+Selenium MCP Server Test Status: SUCCESS
+```
+If the setup fails, the logs will display an error message indicating that the server test did not pass.
+
 ## BROWSER SESSION FLOW
 
 Each browser session is identified by a `session_id`.
@@ -138,34 +152,33 @@ Each browser session is identified by a `session_id`.
 
 ## AVAILABLE MCP TOOLS
 ### BROWSER CONTROL
-1. open_browser – Launch a new browser session  
-2. close_browser – Close the browser session  
-3. maximize_browser – Maximize browser window  
-4. fullscreen_browser – Switch browser to fullscreen  
+1. `open_browser` – Launch a new browser session  
+2. `close_browser` – Close the browser session  
+3. `maximize_browser` – Maximize browser window  
+4. `fullscreen_browser` – Switch browser to fullscreen  
 
 ### NAVIGATION
-1. open_url – Navigate to a specific URL  
-2. navigate_back – Navigate back in browser history  
-3. navigate_forward – Navigate forward in history  
-4. refresh_page – Reload the page  
-5. wait_for_page – Wait for page to load  
-6. get_page_title – Get the current page title  
+1. `open_url` – Navigate to a specific URL  
+2. `navigate_back` – Navigate back in browser history  
+3. `navigate_forward` – Navigate forward in history  
+4. `refresh_page` – Reload the page  
+5. `wait_for_page` – Wait for page to load  
+6. `get_page_title` – Get the current page title  
 
 ### ELEMENT DISCOVERY
-1. get_interactive_elements – Discover visible interactive elements on the page  
-2. get_accessibility_tree – Retrieve simplified accessibility tree for the page  
+1. `get_interactive_elements` – Discover visible interactive elements on the page  
+2. `get_accessibility_tree` – Retrieve simplified accessibility tree for the page  
 
 These tools allow agents to understand the UI structure before interacting with it.
 
 ### INTERACTION TOOLS
-1. click_element – Click an element by index  
-2. type_into_element – Enter text into an input field  
+1. `click_element` – Click an element by index  
+2. `type_into_element` – Enter text into an input field  
 
-Elements must first be discovered using:
-get_interactive_elements
+Elements must first be discovered using: `get_interactive_elements`
 
 ### PAGE ANALYSIS
-get_page_text – Extract visible text from the page
+`get_page_text` – Extract visible text from the page
 
 Useful for:
 - validation
@@ -173,7 +186,7 @@ Useful for:
 - information extraction
 
 ### VISUAL DEBUGGING
-take_screenshot – Capture a screenshot of the current browser window
+`take_screenshot` – Capture a screenshot of the current browser window
 
 To change the location, set the environment variable:
 ```python
@@ -202,33 +215,92 @@ wait_for_page
 
 get_page_text
 ```
+## SYSTEM PROMPT FOR AI AGENTS
 
-## Logging
+This repository includes a **production-grade system prompt** designed specifically for browser automation agents that interact with this Selenium MCP server.
+
+The prompt contains detailed operational guidelines that instruct the AI agent on how to:
+
+* initialize and control the browser
+* discover and interact with UI elements
+* analyze page structure using the accessibility tree
+* avoid hallucinating element indexes
+* handle navigation and page reloads
+* recover from stale elements
+* follow a deterministic execution loop (PLAN → ACT → OBSERVE → UPDATE PLAN)
+* enforce safety limits on tool usage
+
+### Prompt location
+```
+prompts/system_prompt.py
+```
+
+### How to use
+
+Whenever you build an AI agent that interacts with this MCP server, **this prompt should be provided as the system prompt** for the model.
+
+Example:
+
+```python
+from prompts.system_prompt import SYSTEM_PROMPT
+
+messages = [
+    {"role": "system", "content": SYSTEM_PROMPT},
+    {"role": "user", "content": "Your task here"}
+]
+```
+
+### Why this prompt
+
+Browser automation agents can easily make incorrect decisions if not guided properly.
+This system prompt provides **strict operational rules and guardrails** that help the agent:
+
+* use MCP tools correctly
+* avoid incorrect element interactions
+* minimize hallucinations
+* perform reliable browser automation tasks
+
+Using this prompt significantly improves the **stability, accuracy, and reliability** of AI-driven browser automation.
+
+### Recommendation
+
+It is strongly recommended that **all AI agents interacting with this Selenium MCP server use this system prompt** to ensure consistent and reliable behavior.
+
+## PROMPT CUSTOMIZATION
+
+You may modify or extend the system prompt depending on your use case. However, it is recommended to preserve the core operational rules related to:
+
+* MCP tool usage
+* element discovery
+* navigation handling
+* safety limits
+
+## LOGGING
 All application logs are written to the `logs/` directory located at the project root.
 
 Features:
-- Daily log file rotation
-- Automatic cleanup of older log files
-- Logs written to both console and file
+* Daily log file rotation
+* Automatic cleanup of older log files
+* Logs written to both console and file
 
 This helps with easier debugging and monitoring of the MCP server.
 
 ## REQUIREMENTS
-- Python 3.10+
-- Selenium
-- Web browser
-- webdriver-manager
-- MCP Python SDK
+* Python 3.10+
+* Selenium
+* Web browser
+* webdriver-manager
+* MCP Python SDK
 
 ## USE CASES
 
 This project can be used to build:
-- AI test automation agents
-- Autonomous QA assistants
-- LLM-powered browser copilots
-- Self-healing test frameworks
-- AI web scraping agents
-- Intelligent UI testing systems
+* AI test automation agents
+* Autonomous QA assistants
+* LLM-powered browser copilots
+* Self-healing test frameworks
+* AI web scraping agents
+* Intelligent UI testing systems
 
 ## CONTRIBUTING
 
@@ -253,5 +325,5 @@ Built to help the QA and AI automation community build intelligent browser autom
 ## SUPPORT THE PROJECT
 
 If this project helps you:
-- Star the repository
-- Share it with the QA community
+* Star the repository
+* Share it with the QA community
