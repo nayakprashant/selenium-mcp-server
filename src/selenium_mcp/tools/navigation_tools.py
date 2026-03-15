@@ -1,11 +1,11 @@
-from core.mcp_instance import mcp
-from core.session_manager import *
+from selenium_mcp.core.mcp_instance import mcp
+from selenium_mcp.core.session_manager import *
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from utils.logger import logger
+from selenium_mcp.utils.logger import logger
 
 
 @mcp.tool()

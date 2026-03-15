@@ -1,8 +1,8 @@
-from core.mcp_instance import mcp
-from core.session_manager import *
+from selenium_mcp.core.mcp_instance import mcp
+from selenium_mcp.core.session_manager import *
 from selenium.webdriver.common.by import By
 
-from utils.logger import logger
+from selenium_mcp.utils.logger import logger
 
 INTERACTIVE_SELECTOR = "button, a, input, textarea, select"
 
