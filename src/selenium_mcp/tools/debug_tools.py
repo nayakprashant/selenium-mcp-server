@@ -3,8 +3,15 @@ from selenium_mcp.core.session_manager import *
 import os
 from selenium_mcp.utils.logger import logger
 from selenium_mcp.utils.generics import hex_token
+from pathlib import Path
 
-SCREENSHOT_DIR = os.getenv("MCP_SCREENSHOT_DIR")
+DEFAULT_SCREENSHOT_DIR = Path.home() / ".selenium-mcp" / "screenshot"
+
+SCREENSHOT_DIR = Path(
+    os.getenv("SELENIUM_MCP_SCREENSHOT_DIR", DEFAULT_SCREENSHOT_DIR)
+)
+
+SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @mcp.tool()

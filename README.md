@@ -69,75 +69,34 @@ flowchart TD
 
 ## INSTALLATION
 
-### Clone the repository
+### Run the following command
 
 ```bash
-git clone https://github.com/nayakprashant/selenium-mcp-server.git
-
-cd selenium-mcp-server
+pip install selenium-mcp
 ```
-
-### Create a virtual environment
-
-```bash
-python -m venv .venv
-```
-
-### Activate the environment
-
-#### Mac / Linux
-```bash
-source .venv/bin/activate
-```
-
-#### Windows
-```bash
-.venv\Scripts\activate
-```
-
-### Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-## ENVIRONMENT CONFIGURATION
-
-Create a `.env` file in the root of the project.
-
-Add the following variable:
-```python
-MCP_SCREENSHOT_DIR=/path/to/screenshot/directory
-```
-
-### Example:
-```python
-MCP_SCREENSHOT_DIR=/Users/yourname/screenshots
-```
-This variable defines the directory where screenshots captured by the take_screenshot tool will be saved.
-
-Make sure the directory exists, and the application has permission to write files to it.
 
 ## RUNNING THE SERVER
 
 #### Start the MCP server
 ```bash
-python -m server
+selenium-mcp run
 ```
 This launches the Selenium MCP server and exposes browser automation tools to AI agents.
 
 ## TESTING THE SERVER
 Run the following command to verify that the MCP server is running correctly:
 ```bash
-python -m test.mcp_test 
+selenium-mcp check 
 ```
 This script checks whether the Selenium MCP server is initialized successfully and whether the required tools are available.
 
-If the server is set up correctly, you should see the following message in the terminal or logs:
+If the server is set up correctly, you should see the following message in the terminal:
 
 ```bash
-Selenium MCP Server Test Status: SUCCESS
+MCP Server sanity check passed
 ```
-If the setup fails, the logs will display an error message indicating that the server test did not pass.
+
+If the setup fails, the terminal will display an error message indicating that the sanity check did not pass.
 
 ## BROWSER SESSION FLOW
 
@@ -188,10 +147,63 @@ Useful for:
 ### VISUAL DEBUGGING
 `take_screenshot` – Capture a screenshot of the current browser window
 
-To change the location, set the environment variable:
-```python
-MCP_SCREENSHOT_DIR
+#### Screenshot Storage Location
+When screenshots are captured, they are automatically saved in a hidden folder inside your home directory.
+
+##### macOS / Linux
+Screenshots are stored at:
 ```
+~/.selenium-mcp/screenshot
+```
+
+Example full path:
+```
+/Users/<your-username>/.selenium-mcp/screenshot
+```
+
+You can open the folder using Terminal:
+```bash
+open ~/.selenium-mcp/screenshot
+```
+
+##### Windows
+
+Screenshots are stored at:
+```
+C:\Users\<your-username>\.selenium-mcp\screenshot
+```
+
+Example:
+```
+C:\Users\John\.selenium-mcp\screenshot
+```
+
+You can open it from **File Explorer** by entering the following in the address bar:
+```
+%USERPROFILE%\.selenium-mcp\screenshot
+```
+#### Custom Screenshot Directory (Optional)
+
+You can override the default screenshot location using the environment variable: `SELENIUM_MCP_SCREENSHOT_DIR`
+
+##### macOS / Linux
+```bash
+export SELENIUM_MCP_SCREENSHOT_DIR=~/my-screenshots
+```
+
+##### Windows (PowerShell)
+```bash
+$env:SELENIUM_MCP_SCREENSHOT_DIR="C:\my-screenshots"
+```
+
+All screenshots will then be saved to the specified directory.
+
+##### Notes
+
+* The folder is **created automatically** the first time a screenshot is taken.
+* The `.selenium-mcp` directory is **hidden by default** because it starts with a dot (`.`).
+* You can safely delete screenshots anytime.
+
 ## EXAMPLE AGENT WORKFLOW
 
 ### Example task: 
@@ -232,23 +244,13 @@ The prompt contains detailed operational guidelines that instruct the AI agent o
 
 ### Prompt location
 ```
-prompts/system_prompt.py
+prompts/system_prompt.md
 ```
 
 ### How to use
 
 Whenever you build an AI agent that interacts with this MCP server, **this prompt should be provided as the system prompt** for the model.
 
-Example:
-
-```python
-from prompts.system_prompt import SYSTEM_PROMPT
-
-messages = [
-    {"role": "system", "content": SYSTEM_PROMPT},
-    {"role": "user", "content": "Your task here"}
-]
-```
 
 ### Why this prompt
 
@@ -276,14 +278,75 @@ You may modify or extend the system prompt depending on your use case. However, 
 * safety limits
 
 ## LOGGING
-All application logs are written to the `logs/` directory located at the project root.
+All application logs are stored in a user-specific directory:
+```bash
+~/.selenium-mcp/logs/
+```
+This directory is automatically created when the server starts.
+
+### Log file
+Logs are written to:
+```bash
+~/.selenium-mcp/logs/selenium_mcp.log
+```
 
 Features:
 * Daily log file rotation
 * Automatic cleanup of older log files
 * Logs written to both console and file
+* Persistent logs independent of the project directory
 
-This helps with easier debugging and monitoring of the MCP server.
+Logs are stored in the user's home directory so they remain available even if the package is installed globally via pip. This makes it easier to debug issues and monitor MCP server activity across different projects.
+
+### Example Log Entry
+```bash
+2026-03-15 19:00:07,444 [INFO] [selenium-mcp] Initializing Selenium MCP Server...
+```
+
+#### macOS / Linux
+Logs are stored in:
+```bash
+/Users/<username>/.selenium-mcp/logs/
+```
+Example:
+```bash
+/Users/john/.selenium-mcp/logs/selenium_mcp.log
+```
+You can open it from the terminal:
+```bash
+cd ~/.selenium-mcp/logs
+ls
+```
+
+View logs:
+```bash
+cat selenium_mcp.log
+```
+or
+```bash
+tail -f selenium_mcp.log
+```
+
+#### Windows
+Logs are stored in:
+```bash
+C:\Users\<username>\.selenium-mcp\logs\
+```
+Example:
+```bash
+C:\Users\John\.selenium-mcp\logs\selenium_mcp.log
+```
+
+Open it in File Explorer:
+```bash
+C:\Users\%USERNAME%\.selenium-mcp\logs\
+```
+
+Or from Command Prompt:
+```bash
+cd %USERPROFILE%\.selenium-mcp\logs
+dir
+```
 
 ## REQUIREMENTS
 * Python 3.10+

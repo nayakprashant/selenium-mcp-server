@@ -2,16 +2,16 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
-LOG_DIR = Path.home() / ".selenium-mcp-server" / "logs"
+LOG_DIR = Path.home() / ".selenium-mcp" / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-log_file = LOG_DIR / "selenium_mcp_server.log"
+log_file = LOG_DIR / "selenium_mcp.log"
 
 formatter = logging.Formatter(
     "%(asctime)s [%(levelname)s] [%(name)s] %(message)s"
 )
 
-logger = logging.getLogger("selenium-mcp-server")
+logger = logging.getLogger("selenium-mcp")
 logger.setLevel(logging.INFO)
 
 console_handler = logging.StreamHandler()
