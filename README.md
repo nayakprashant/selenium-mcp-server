@@ -152,34 +152,33 @@ Each browser session is identified by a `session_id`.
 
 ## AVAILABLE MCP TOOLS
 ### BROWSER CONTROL
-1. open_browser – Launch a new browser session  
-2. close_browser – Close the browser session  
-3. maximize_browser – Maximize browser window  
-4. fullscreen_browser – Switch browser to fullscreen  
+1. `open_browser` – Launch a new browser session  
+2. `close_browser` – Close the browser session  
+3. `maximize_browser` – Maximize browser window  
+4. `fullscreen_browser` – Switch browser to fullscreen  
 
 ### NAVIGATION
-1. open_url – Navigate to a specific URL  
-2. navigate_back – Navigate back in browser history  
-3. navigate_forward – Navigate forward in history  
-4. refresh_page – Reload the page  
-5. wait_for_page – Wait for page to load  
-6. get_page_title – Get the current page title  
+1. `open_url` – Navigate to a specific URL  
+2. `navigate_back` – Navigate back in browser history  
+3. `navigate_forward` – Navigate forward in history  
+4. `refresh_page` – Reload the page  
+5. `wait_for_page` – Wait for page to load  
+6. `get_page_title` – Get the current page title  
 
 ### ELEMENT DISCOVERY
-1. get_interactive_elements – Discover visible interactive elements on the page  
-2. get_accessibility_tree – Retrieve simplified accessibility tree for the page  
+1. `get_interactive_elements` – Discover visible interactive elements on the page  
+2. `get_accessibility_tree` – Retrieve simplified accessibility tree for the page  
 
 These tools allow agents to understand the UI structure before interacting with it.
 
 ### INTERACTION TOOLS
-1. click_element – Click an element by index  
-2. type_into_element – Enter text into an input field  
+1. `click_element` – Click an element by index  
+2. `type_into_element` – Enter text into an input field  
 
-Elements must first be discovered using:
-get_interactive_elements
+Elements must first be discovered using: `get_interactive_elements`
 
 ### PAGE ANALYSIS
-get_page_text – Extract visible text from the page
+`get_page_text` – Extract visible text from the page
 
 Useful for:
 - validation
@@ -187,7 +186,7 @@ Useful for:
 - information extraction
 
 ### VISUAL DEBUGGING
-take_screenshot – Capture a screenshot of the current browser window
+`take_screenshot` – Capture a screenshot of the current browser window
 
 To change the location, set the environment variable:
 ```python
