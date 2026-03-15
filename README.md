@@ -347,6 +347,96 @@ Or from Command Prompt:
 cd %USERPROFILE%\.selenium-mcp\logs
 dir
 ```
+## CONFIGURE YOUR MCP CLIENT
+Add the Selenium MCP server to your MCP client configuration.
+
+Example configuration:
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp"
+    }
+  }
+}
+```
+This tells the MCP client how to start the Selenium MCP server.
+
+### Client Examples
+#### Claude Desktop
+Config file location:
+##### macOS
+```bash
+~/Library/Application Support/Claude/claude_desktop_config.json
+```
+
+##### Windows
+```bash
+%APPDATA%\Claude\claude_desktop_config.json
+```
+Add
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp"
+    }
+  }
+}
+```
+Restart Claude Desktop after updating the configuration.
+
+### Troubleshooting
+If you encounter issues while setting up or running Selenium MCP, try the following solutions.
+#### selenium-mcp: command not found
+
+This usually means the CLI command is not available in your system `PATH`.
+
+First verify the package is installed:
+```bash
+pip show selenium-mcp
+```
+Locate the installed command.
+
+##### macOS / Linux
+```bash
+which selenium-mcp
+```
+
+Example output:
+```bash
+/Users/<username>/.local/bin/selenium-mcp
+```
+If the command is found, update your MCP client configuration to use the full path:
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "/Users/<username>/.local/bin/selenium-mcp"
+    }
+  }
+}
+```
+##### Windows
+Run:
+```bash
+where selenium-mcp
+```
+Example output:
+```bash
+C:\Users\<username>\AppData\Roaming\Python\Python311\Scripts\selenium-mcp.exe
+```
+Update your MCP client configuration:
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "C:\\Users\\<username>\\AppData\\Roaming\\Python\\Python311\\Scripts\\selenium-mcp.exe"
+    }
+  }
+}
+```
+Note: Windows paths in JSON require double backslashes (`\\`).
 
 ## REQUIREMENTS
 * Python 3.10+
