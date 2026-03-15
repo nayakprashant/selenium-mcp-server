@@ -231,12 +231,12 @@ The prompt contains detailed operational guidelines that instruct the AI agent o
 * follow a deterministic execution loop (PLAN → ACT → OBSERVE → UPDATE PLAN)
 * enforce safety limits on tool usage
 
-### Prompt Location
+### Prompt location
 ```
 prompts/system_prompt.py
 ```
 
-### How to Use
+### How to use
 
 Whenever you build an AI agent that interacts with this MCP server, **this prompt should be provided as the system prompt** for the model.
 
@@ -251,7 +251,7 @@ messages = [
 ]
 ```
 
-### Why This Prompt Is Important
+### Why this prompt
 
 Browser automation agents can easily make incorrect decisions if not guided properly.
 This system prompt provides **strict operational rules and guardrails** that help the agent:
@@ -267,7 +267,7 @@ Using this prompt significantly improves the **stability, accuracy, and reliabil
 
 It is strongly recommended that **all AI agents interacting with this Selenium MCP server use this system prompt** to ensure consistent and reliable behavior.
 
-## Prompt Customization
+## PROMPT CUSTOMIZATION
 
 You may modify or extend the system prompt depending on your use case. However, it is recommended to preserve the core operational rules related to:
 
