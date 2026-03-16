@@ -5,11 +5,43 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "selenium-mcp"
 version = "1.2.0"
-description = "Selenium WebDriver MCP server for AI agents and LLM-powered browser automation"
+description = "Selenium WebDriver Model Context Protocol (MCP) server enabling AI agents and LLMs to control browsers"
 readme = "README.md"
 requires-python = ">=3.10"
+
+license = { file = "LICENSE" }
+
 authors = [
   { name="Prashant Nayak" }
+]
+
+keywords = [
+  "selenium",
+  "webdriver",
+  "automation",
+  "browser-automation",
+  "mcp",
+  "model-context-protocol",
+  "ai",
+  "ai-agent",
+  "llm",
+  "llm-tools",
+  "agent-tools",
+  "claude",
+  "openai",
+  "crew-ai",
+  "gemini"
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Internet :: WWW/HTTP :: Browsers",
+  "Intended Audience :: Developers"
 ]
 
 dependencies = [
@@ -17,6 +49,11 @@ dependencies = [
     "webdriver-manager",
     "mcp"
 ]
+
+[project.urls]
+Homepage = "https://github.com/nayakprashant/selenium-mcp-server"
+Releases = "https://github.com/nayakprashant/selenium-mcp-server/releases"
+Issues = "https://github.com/nayakprashant/selenium-mcp-server/issues"
 
 [project.scripts]
 selenium-mcp = "selenium_mcp.server:main"
