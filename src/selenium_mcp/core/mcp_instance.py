@@ -1,9 +1,9 @@
 from mcp.server.fastmcp import FastMCP
 from selenium_mcp.utils.logger import logger
 
-logger.info(
-    f"Initializing Selenium MCP Server...")
-
-mcp = FastMCP(
-    "selenium-mcp-server"
-)
+try:
+    mcp = FastMCP(
+        "selenium-mcp-server"
+    )
+except Exception as e:
+    logger.error(f"Initialization failed. Error: {e}")

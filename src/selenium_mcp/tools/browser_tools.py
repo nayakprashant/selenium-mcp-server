@@ -1,3 +1,5 @@
+from os import EX_CANTCREAT
+
 from selenium_mcp.core.mcp_instance import mcp
 from selenium_mcp.core.browser_factory import create_driver
 from selenium_mcp.core.session_manager import *
@@ -36,23 +38,41 @@ def open_browser(browser: str = "chrome", headless: bool = False):
     Returns
     -------
     dict
-        {"session_id": str, "browser": str, "headless": bool}
+        {"session_id": str, "browser": str, "headless": bool, "status": str, "message": str}
 
     Note
     -----
     Only call this tool ONCE per workflow, unless explicitly instructed.
     Do not call it again unless the previous browser session was closed.
     """
-    logger.info(f"open_browser: browser = {browser}, headless = {headless}")
-    driver = create_driver(browser, headless)
 
-    session_id = str(uuid.uuid4())
-    add_session(session_id, driver)
-    logger.info(f"open_browser: session ID {session_id} created")
+    log_info = f"open_browser: browser = {browser}, headless = {headless}"
+    logger.info(f"Opening browser - {log_info}")
+
+    session_id = None
+    message = None
+    status = "failure"
+
+    try:
+        driver = create_driver(browser, headless)
+        session_id = str(uuid.uuid4())
+
+        logger.info(f"Adding driver to the session - {session_id}")
+        add_session(session_id, driver)
+
+        status = "success"
+        message = "Browser session created"
+
+    except Exception:
+        logger.exception(f"Error - {log_info}")
+        message = "Browser could not be launched"
+
     return {
         "session_id": session_id,
         "browser": browser,
-        "headless": headless
+        "headless": headless,
+        "status": status,
+        "message": message
     }
 
 
@@ -66,13 +86,29 @@ def close_browser(session_id: str):
     session_id : str
         Active browser session identifier.
     """
+    log_info = f"close_browser: session ID = {session_id}"
+    logger.info(f"Closing browser - {log_info}")
 
-    logger.info(f"close_browser: session ID = {session_id}")
+    message = None
+    status = "failure"
 
-    driver = get_driver(session_id)
-    driver.quit()
-    del sessions[session_id]
-    return {"message": "Browser closed", "session_id": session_id}
+    try:
+        driver = get_driver(session_id)
+        driver.quit()
+        del sessions[session_id]
+
+        message = "Browser closed"
+        status = "success"
+
+    except Exception:
+        logger.exception(f"Error - {log_info}")
+        message = "Browser could not be closed"
+
+    return {
+        "session_id": session_id,
+        "status": status,
+        "message": message
+    }
 
 
 @mcp.tool()
@@ -85,10 +121,27 @@ def maximize_browser(session_id: str):
     session_id : str
         Active browser session identifier.
     """
-    logger.info(f"maximize_browser: session ID = {session_id}")
-    driver = get_driver(session_id)
-    driver.maximize_window()
-    return {"session_id": session_id, "message": "Browser window maximized"}
+    log_info = f"maximize_browser: session ID = {session_id}"
+    logger.info(f"Maximizing browser - {log_info}")
+
+    status = "failure"
+    message = None
+
+    try:
+        driver = get_driver(session_id)
+        driver.maximize_window()
+        status = "success"
+        message = "Browser window maximized"
+
+    except Exception:
+        logger.exception(f"Error - {log_info}")
+        message = "Unable to maximize the browser window"
+
+    return {
+        "session_id": session_id,
+        "status": status,
+        "message": message
+    }
 
 
 @mcp.tool()
@@ -101,7 +154,25 @@ def fullscreen_browser(session_id: str):
     session_id : str
         Active browser session identifier.
     """
-    logger.info(f"fullscreen_browser: session ID = {session_id}")
-    driver = get_driver(session_id)
-    driver.fullscreen_window()
-    return {"session_id": session_id, "message": "Browser switched to fullscreen mode"}
+    log_info = f"fullscreen_browser: session ID = {session_id}"
+    logger.info(f"Making browser fullscreen - {log_info}")
+
+    message = None
+    status = "failure"
+
+    try:
+        driver = get_driver(session_id)
+        driver.fullscreen_window()
+
+        status = "success"
+        message = "Browser switched to fullscreen mode"
+
+    except Exception:
+        logger.exception(f"Error - {log_info}")
+        message = "Could not make the browser fullscreen"
+
+    return {
+        "session_id": session_id,
+        "status": status,
+        "message": message
+    }

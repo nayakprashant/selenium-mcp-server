@@ -15,13 +15,18 @@ from selenium_mcp.tools.debug_tools import *
 from selenium_mcp.utils.logger import logger
 
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 
 def run_server():
     """Start the MCP server."""
     logger.info("Starting Selenium MCP Server...")
-    mcp.run(transport="stdio")
+
+    try:
+        mcp.run(transport="stdio")
+    except Exception as e:
+        print(
+            f"Error encountered while starting the server. Details - {e}")
 
 
 async def sanity_check():
@@ -31,6 +36,7 @@ async def sanity_check():
     try:
         tools = await mcp.list_tools()
 
+        print("--------------------")
         print("Registered MCP Tools")
         print("--------------------")
 
@@ -39,8 +45,9 @@ async def sanity_check():
         for name in tool_names:
             print(f"- {name}")
 
-        print("\n--------------------")
+        print("\n-----------------------------")
         print(f"Total tools registered: {len(tool_names)}")
+        print("-----------------------------")
 
         print("\nMCP Server sanity check passed\n")
 
@@ -55,28 +62,33 @@ def show_version():
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Selenium WebDriver MCP server for AI agents and LLM-powered browser automation"
-    )
 
-    parser.add_argument(
-        "command",
-        nargs="?",
-        default="run",
-        choices=["run", "check", "version"],
-        help="Command to run"
-    )
+    try:
+        parser = argparse.ArgumentParser(
+            description="Selenium WebDriver MCP server for AI agents and LLM-powered browser automation"
+        )
 
-    args = parser.parse_args()
+        parser.add_argument(
+            "command",
+            nargs="?",
+            default="run",
+            choices=["run", "check", "version"],
+            help="Command to run"
+        )
 
-    if args.command == "run":
-        run_server()
+        args = parser.parse_args()
 
-    elif args.command == "check":
-        asyncio.run(sanity_check())
+        if args.command == "run":
+            run_server()
 
-    elif args.command == "version":
-        show_version()
+        elif args.command == "check":
+            asyncio.run(sanity_check())
+
+        elif args.command == "version":
+            show_version()
+
+    except Exception:
+        logger.exception(f"MCP server encountered an error")
 
 
 if __name__ == "__main__":

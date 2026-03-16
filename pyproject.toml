@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "selenium-mcp"
-version = "1.1.0"
+version = "1.2.0"
 description = "Selenium WebDriver MCP server for AI agents and LLM-powered browser automation"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
   { name="Prashant Nayak" }
 ]
@@ -15,8 +15,7 @@ authors = [
 dependencies = [
     "selenium",
     "webdriver-manager",
-    "mcp",
-    "python-dotenv"
+    "mcp"
 ]
 
 [project.scripts]
