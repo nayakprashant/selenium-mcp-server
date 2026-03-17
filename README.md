@@ -37,7 +37,6 @@ This makes it possible to build AI-powered browser automation systems and autono
 - [Prompt Customization](#prompt-customization)
 - [Logging](#logging)
 - [Configure Your MCP Client](#configure-your-mcp-client)
-- [Troubleshooting](#troubleshooting)
 - [Requirements](#requirements)
 - [Use Cases](#use-cases)
 - [Contributing](#contributing)
