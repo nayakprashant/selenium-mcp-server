@@ -1,5 +1,3 @@
-from syslog import LOG_INFO
-
 from selenium_mcp.core.mcp_instance import mcp
 from selenium_mcp.core.session_manager import *
 from selenium_mcp.utils.logger import logger
