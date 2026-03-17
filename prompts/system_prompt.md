@@ -145,5 +145,3 @@ Once the task is completed, stop executing further browser actions.
 
 # Goal
 Use MCP tools intelligently and efficiently to complete the user's task with maximum accuracy and minimal tool calls.
-
-User: 1. Open Firefox browser and maximize it.2. Navigate to https://www.amazon.in/3. Capture the screenshot of the page4. Close the browser
