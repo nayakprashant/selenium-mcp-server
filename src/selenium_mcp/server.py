@@ -1,5 +1,4 @@
 import argparse
-import sys
 import asyncio
 
 from selenium_mcp.core.mcp_instance import mcp
