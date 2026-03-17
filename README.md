@@ -22,6 +22,28 @@ It enables LLMs and autonomous agents to perform tasks like:
 
 This makes it possible to build AI-powered browser automation systems and autonomous QA agents.
 
+## Table of Contents
+
+- [Why This Project Exists](#why-this-project-exists)
+- [Architecture](#architecture)
+- [Features](#features)
+- [Installation](#installation)
+- [Running the Server](#running-the-server)
+- [Testing the Server](#testing-the-server)
+- [Browser Session Flow](#browser-session-flow)
+- [Available MCP Tools](#available-mcp-tools)
+- [Example Agent Workflow](#example-agent-workflow)
+- [System Prompt for AI Agents](#system-prompt-for-ai-agents)
+- [Prompt Customization](#prompt-customization)
+- [Logging](#logging)
+- [Configure Your MCP Client](#configure-your-mcp-client)
+- [Troubleshooting](#troubleshooting)
+- [Requirements](#requirements)
+- [Use Cases](#use-cases)
+- [Contributing](#contributing)
+- [License](#license)
+- [Author](#author)
+
 ## WHY THIS PROJECT EXISTS
 
 Modern AI agents need a way to interact with real applications.
