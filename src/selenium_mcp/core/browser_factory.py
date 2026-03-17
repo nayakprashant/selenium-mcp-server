@@ -17,42 +17,51 @@ from selenium_mcp.utils.logger import logger
 
 def create_driver(browser="chrome", headless=False):
 
+    log_info = f"create_driver: browser={browser}, headless={headless}"
+
     logger.info(
-        f"create_driver: browser={browser}, headless={headless}")
-    if browser == "chrome":
-        options = ChromeOptions()
-        if headless:
-            options.add_argument("--headless=new")
+        f"Creating driver - {log_info}")
 
-        return webdriver.Chrome(
-            service=ChromeService(ChromeDriverManager().install()),
-            options=options
-        )
+    try:
+        if browser == "chrome":
+            options = ChromeOptions()
+            if headless:
+                options.add_argument("--headless=new")
 
-    if browser == "firefox":
-        options = FirefoxOptions()
-        if headless:
-            options.add_argument("-headless")
+            return webdriver.Chrome(
+                service=ChromeService(ChromeDriverManager().install()),
+                options=options
+            )
 
-        return webdriver.Firefox(
-            service=FirefoxService(GeckoDriverManager().install()),
-            options=options
-        )
+        if browser == "firefox":
+            options = FirefoxOptions()
+            if headless:
+                options.add_argument("-headless")
 
-    if browser == "edge":
-        options = EdgeOptions()
-        if headless:
-            options.add_argument("--headless=new")
+            return webdriver.Firefox(
+                service=FirefoxService(GeckoDriverManager().install()),
+                options=options
+            )
 
-        return webdriver.Edge(
-            service=EdgeService(EdgeChromiumDriverManager().install()),
-            options=options
-        )
+        if browser == "edge":
+            options = EdgeOptions()
+            if headless:
+                options.add_argument("--headless=new")
 
-    if browser == "safari":
-        return webdriver.Safari()
+            return webdriver.Edge(
+                service=EdgeService(EdgeChromiumDriverManager().install()),
+                options=options
+            )
+
+        if browser == "safari":
+            return webdriver.Safari()
+
+    except Exception as e:
+
+        logger.error(
+            f"Error - {log_info}. Details - {e}")
 
     logger.error(
-        f"create_driver: browser={browser}, headless={headless}")
+        f"Error - {log_info}. Details - {e}")
 
     raise ValueError(f"Unsupported browser: {browser}")

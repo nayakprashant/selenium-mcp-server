@@ -49,6 +49,7 @@ def get_interactive_elements(session_id: str):
     -------
     dict
         {
+            "session_id": str,
             "count": number_of_interactive_elements_found,
             "elements": [
                 {
@@ -56,7 +57,9 @@ def get_interactive_elements(session_id: str):
                     "role": str,
                     "label": str
                 }
-            ]
+            ],
+            "status": str,
+            "message": str
         }
 
     Notes
@@ -66,56 +69,72 @@ def get_interactive_elements(session_id: str):
     - The elements are cached internally for the current session so that
       subsequent actions operate on the same DOM elements.
     """
-    logger.info(f"get_interactive_elements: session ID = {session_id}")
-    driver = get_driver(session_id)
+    log_info = f"get_interactive_elements: session ID = {session_id}"
+    logger.info(f"Getting interactive elements - {log_info}")
 
-    '''
-    elements = driver.find_elements(
-        By.CSS_SELECTOR,
-        "button, a, input, textarea, select"
-    )
-    '''
-    elements = [
-        el for el in driver.find_elements(
+    status = "failure"
+    message = None
+    result = []
+
+    try:
+        driver = get_driver(session_id)
+
+        '''
+        elements = driver.find_elements(
             By.CSS_SELECTOR,
             "button, a, input, textarea, select"
         )
-        if el.is_displayed()
-    ]
-    element_cache[session_id] = elements
-
-    result = []
-
-    for i, el in enumerate(elements):
         '''
-        text= el.text or el.get_attribute(
-            "value") or el.get_attribute("placeholder") or ""
-        '''
-        role = el.tag_name
+        elements = [
+            el for el in driver.find_elements(
+                By.CSS_SELECTOR,
+                "button, a, input, textarea, select"
+            )
+            if el.is_displayed()
+        ]
+        element_cache[session_id] = elements
 
-        if role == "input":
-            role = "textbox"
+        for i, el in enumerate(elements):
+            '''
+            text= el.text or el.get_attribute(
+                "value") or el.get_attribute("placeholder") or ""
+            '''
+            role = el.tag_name
 
-        if role == "a":
-            role = "link"
+            if role == "input":
+                role = "textbox"
 
-        label = (
-            el.text
-            or el.get_attribute("aria-label")
-            or el.get_attribute("placeholder")
-            or el.get_attribute("name")
-            or el.get_attribute("value")
-            or ""
-        )
-        result.append({
-            "index": i,
-            "role": role,
-            "label": label
-        })
+            if role == "a":
+                role = "link"
+
+            label = (
+                el.text
+                or el.get_attribute("aria-label")
+                or el.get_attribute("placeholder")
+                or el.get_attribute("name")
+                or el.get_attribute("value")
+                or ""
+            )
+            result.append({
+                "index": i,
+                "role": role,
+                "label": label
+            })
+
+            status = "success"
+            message = "Interactive elements captured successfully"
+
+    except Exception:
+        logger.exception(f"")
+        result = []
+        message = "Could not capture interactive elements"
 
     return {
+        "session_id": session_id,
         "count": len(result),
-        "elements": result
+        "elements": result,
+        "status": status,
+        "message": message
     }
 
 
@@ -138,56 +157,81 @@ def get_accessibility_tree(session_id: str):
     Returns
     -------
     dict
-        {"count": int, "nodes": [{"index": int, "role": str,
+        {
+        "session_id": str,
+        "count": int, 
+        "nodes": [{"index": int, "role": str,
         "name": str, "tag": str, "id": str, "name_attr": str,
-        "placeholder": str, "aria_label": str}]}
+        "placeholder": str, "aria_label": str}],
+        "status": str,
+        "message": str
+        }
     """
+    log_info = f"get_accessibility_tree: session ID = {session_id}"
+    logger.info(f"Getting accessibility tree -  {log_info}")
 
-    logger.info(f"get_accessibility_tree: session ID = {session_id}")
-    driver = get_driver(session_id)
+    status = "failure"
+    message = None
 
-    nodes = driver.execute_script(
-        f"""
-    function getRole(el) {{
-        const tag = el.tagName.toLowerCase();
-        if (tag === "button") return "button";
-        if (tag === "a") return "link";
-        if (tag === "textarea") return "textbox";
-        if (tag === "input") {{
-            if (["text","email","password"].includes(el.type)) return "textbox";
-            if (el.type === "search") return "searchbox";
-            if (el.type === "submit") return "button";
+    try:
+        driver = get_driver(session_id)
+
+        nodes = driver.execute_script(
+            f"""
+        function getRole(el) {{
+            const tag = el.tagName.toLowerCase();
+            if (tag === "button") return "button";
+            if (tag === "a") return "link";
+            if (tag === "textarea") return "textbox";
+            if (tag === "input") {{
+                if (["text","email","password"].includes(el.type)) return "textbox";
+                if (el.type === "search") return "searchbox";
+                if (el.type === "submit") return "button";
+            }}
+            if (tag === "select") return "combobox";
+            return "generic";
         }}
-        if (tag === "select") return "combobox";
-        return "generic";
-    }}
 
-    const nodes = [];
-    document.querySelectorAll("{INTERACTIVE_SELECTOR}").forEach(el => {{
-        const style = window.getComputedStyle(el);
-        const visible =
-            style.display !== "none" &&
-            style.visibility !== "hidden" &&
-            el.offsetParent !== null;
+        const nodes = [];
+        document.querySelectorAll("{INTERACTIVE_SELECTOR}").forEach(el => {{
+            const style = window.getComputedStyle(el);
+            const visible =
+                style.display !== "none" &&
+                style.visibility !== "hidden" &&
+                el.offsetParent !== null;
 
-        if (!visible) return;
+            if (!visible) return;
 
-        nodes.push({{
-            role: getRole(el),
-            name: el.innerText || el.value || el.placeholder || el.getAttribute("aria-label") || "",
-            id: el.id || "",
-            name_attr: el.name || "",
-            placeholder: el.placeholder || "",
-            aria_label: el.getAttribute("aria-label") || "",
-            tag: el.tagName.toLowerCase()
+            nodes.push({{
+                role: getRole(el),
+                name: el.innerText || el.value || el.placeholder || el.getAttribute("aria-label") || "",
+                id: el.id || "",
+                name_attr: el.name || "",
+                placeholder: el.placeholder || "",
+                aria_label: el.getAttribute("aria-label") || "",
+                tag: el.tagName.toLowerCase()
+            }});
         }});
-    }});
 
-    return nodes;
-    """
-    )
+        return nodes;
+        """
+        )
 
-    for i, node in enumerate(nodes):
-        node["index"] = i
+        for i, node in enumerate(nodes):
+            node["index"] = i
 
-    return {"count": len(nodes), "nodes": nodes}
+        status = "success"
+        message = "Accessibility tree captured successfully"
+
+    except Exception:
+
+        logger.exception(f"Error - {log_info}")
+        message = "Could not capture accessibility tree"
+
+    return {
+        "session_id": session_id,
+        "count": len(nodes),
+        "nodes": nodes,
+        "status": status,
+        "message": message
+    }

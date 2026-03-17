@@ -5,7 +5,7 @@ from selenium_mcp.utils.logger import logger
 
 
 def random_string(length=8):
-    logger.info(f"random_string: length = {length}")
+    logger.info(f"Getting random string - random_string: length = {length}")
     characters = string.ascii_letters + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
 
@@ -16,5 +16,6 @@ def hex_token(number_of_bytes=8):
     Hexadecimal encoding represents 1 byte using 2 characters
     example output: a3f9c21d8b44
     '''
-    logger.info(f"token: number_of_bytes = {number_of_bytes}")
+    logger.info(
+        f"Getting hex_token - hex_token: number_of_bytes = {number_of_bytes}")
     return secrets.token_hex(number_of_bytes)

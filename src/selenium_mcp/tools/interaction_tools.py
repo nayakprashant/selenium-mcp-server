@@ -1,3 +1,5 @@
+from syslog import LOG_INFO
+
 from selenium_mcp.core.mcp_instance import mcp
 from selenium_mcp.core.session_manager import *
 from selenium_mcp.utils.logger import logger
@@ -40,8 +42,10 @@ def click_element(session_id: str, index: int):
     -------
     dict
         {
-            "status": "clicked",
-            "index": index of the element that was clicked
+            "session_id": str
+            "index": index of the element that was clicked,
+            "status": str
+            "message": str
         }
 
     Error Conditions
@@ -56,25 +60,53 @@ def click_element(session_id: str, index: int):
     The tool automatically scrolls the element into view before clicking
     to ensure it is visible and interactable.
     """
-    logger.info(f"click_element: session ID = {session_id}, index = {index}")
-    driver = get_driver(session_id)
-    elements = element_cache.get(session_id)
+    log_info = f"click_element: session ID = {session_id}, index = {index}"
+    logger.info(f"Clicking element - {log_info}")
 
-    if not elements:
-        return {"status": "error", "message": "No elements cached. Call get_interactive_elements first."}
+    status = "success"
+    message = None
 
-    if index >= len(elements):
-        return {"status": "error", "message": "Invalid element index"}
+    try:
 
-    element = elements[index]
+        driver = get_driver(session_id)
+        elements = element_cache.get(session_id)
 
-    driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        if not elements:
+            status = "failure"
+            message = "No elements cached. Call get_interactive_elements first."
+            return {
+                "session_id": session_id,
+                "index": -1,
+                "status": status,
+                "message": message
+            }
 
-    element.click()
+        if index >= len(elements):
+            status = "failure"
+            message = "Invalid element index"
+            return {
+                "session_id": session_id,
+                "index": -1,
+                "status": status,
+                "message": message
+            }
+
+        element = elements[index]
+        driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        element.click()
+
+        status = "success"
+        message = "Element clicked successfully"
+
+    except Exception:
+        logger.exception(f"Error - {log_info}")
+        message = f"Element at index {index} could not be clicked"
 
     return {
-        "status": "clicked",
-        "index": index
+        "session_id": session_id,
+        "index": index,
+        "status": status,
+        "message": message
     }
 
 
@@ -121,9 +153,11 @@ def type_into_element(session_id: str, index: int, text: str):
     -------
     dict
         {
-            "status": "text_entered",
+            "session_id": str,
             "index": index of the element used,
-            "text": the text that was entered
+            "text_to_type": the text to enter,
+            "status": str,
+            "message": str
         }
 
     Error Conditions
@@ -136,18 +170,34 @@ def type_into_element(session_id: str, index: int, text: str):
     This tool automatically clears any existing text in the element
     before entering the new text.
     """
+    log_info = f"type_into_element: session ID = {session_id}, index = {index}, text = {text}"
+    logger.info(f"Typing into element - {log_info}")
 
-    logger.info(
-        f"type_into_element: session ID = {session_id}, index = {index}, text = {text}")
+    status = "failure"
+    message = None
 
-    driver = get_driver(session_id)
-    elements = element_cache.get(session_id)
+    try:
+        driver = get_driver(session_id)
+        elements = element_cache.get(session_id)
 
-    if not elements:
-        return {"status": "error", "message": "No elements cached"}
+        if not elements:
+            message = "No elements cached"
+        else:
+            element = elements[index]
+            element.clear()
+            element.send_keys(text)
 
-    element = elements[index]
+            status = "success"
+            message = "Text entered"
 
-    element.clear()
-    element.send_keys(text)
-    return {"status": "text_entered", "index": index, "text": text}
+    except Exception:
+        logger.exception(f"Error - {log_info}")
+        message = "Could not type into element"
+
+    return {
+        "session_id": session_id,
+        "index": index,
+        "text_to_type": text,
+        "status": status,
+        "message": message
+    }

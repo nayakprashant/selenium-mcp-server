@@ -33,11 +33,37 @@ def take_screenshot(session_id: str):
     Returns
     -------
     dict
-        {"status": "success", "path": str}  — absolute file path
+        {
+        "session_id": str,
+        screenshot_path: str, 
+        "status": str, 
+        "message": str
+        }
     """
-    logger.info(f"take_screenshot: session ID = {session_id}")
-    driver = get_driver(session_id)
-    filename = f"screenshot_{session_id}_{hex_token(5)}.png"
-    path = os.path.join(SCREENSHOT_DIR, filename)
-    driver.save_screenshot(path)
-    return {"status": "success", "path": path}
+    log_info = f"take_screenshot: session ID = {session_id}"
+    logger.info(f"Taking screenshot - {log_info}")
+
+    status = "failure"
+    message = None
+    path = None
+
+    try:
+        driver = get_driver(session_id)
+        filename = f"screenshot_{session_id}_{hex_token(5)}.png"
+        path = os.path.join(SCREENSHOT_DIR, filename)
+        driver.save_screenshot(path)
+
+        status = "success"
+        message = "Screenshot capture successful"
+
+    except Exception:
+        logger.exception(f"Error - {log_info}")
+        message = "Could not capture screenshot"
+
+    return {
+        "session_id": session_id,
+        "screenshot_path": path,
+        "status": status,
+        "message": message
+
+    }

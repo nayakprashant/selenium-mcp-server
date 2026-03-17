@@ -1,11 +1,12 @@
 # Selenium MCP Server
+
+Model Context Protocol (MCP) server for Selenium WebDriver that enables AI agents and LLMs to control real browsers for automation
+
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
 ![Selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
 ![MCP](https://img.shields.io/badge/MCP-AI%20Agents-purple)
 ![PyPI](https://img.shields.io/pypi/v/selenium-mcp?label=selenium-mcp)
 ![Author](https://img.shields.io/badge/Author-Prashant%20Nayak-black)
-
-Selenium WebDriver MCP server that enables LLMs & AI agents to control real browsers using Selenium and MCP.
 
 This project exposes Selenium WebDriver as an MCP (Model Context Protocol) server, allowing AI agents to control a real browser through structured tools.
 
