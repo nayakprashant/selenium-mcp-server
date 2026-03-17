@@ -14,9 +14,14 @@ def get_interactive_elements(session_id: str):
 
     Purpose
     -------
-    This tool scans the page for interactive elements across modern web applications,
-    including React, Angular, and dynamic UI frameworks. It detects elements based on
-    behavior (clickability, roles, attributes) rather than only HTML tags.
+    This tool scans the page for interactive elements using a performance-optimized
+    selector that works across modern web applications (React, Angular, dynamic UIs).
+
+    It identifies elements based on interaction signals such as:
+        - semantic HTML tags (button, input, link)
+        - ARIA roles (button, link, tab, option)
+        - click handlers (onclick)
+        - focusable elements (tabindex)
 
     The discovered elements are returned with an assigned `index`. This index
     must be used when interacting with elements using tools such as:
@@ -58,6 +63,12 @@ def get_interactive_elements(session_id: str):
             "status": str,
             "message": str
         }
+
+    Notes
+    -----
+    - The returned `index` is required for all interaction tools.
+    - Only visible and meaningful elements are returned to reduce noise.
+    - This tool is optimized for speed and avoids scanning the entire DOM.
     """
 
     log_info = f"get_interactive_elements: session ID = {session_id}"
@@ -70,16 +81,20 @@ def get_interactive_elements(session_id: str):
     try:
         driver = get_driver(session_id)
 
-        all_elements = driver.find_elements(By.CSS_SELECTOR, "*")
+        # Optimized selector (fast + modern UI safe)
+        elements = driver.find_elements(
+            By.CSS_SELECTOR,
+            "button, a, input, textarea, select, "
+            "[role='button'], [role='link'], [role='tab'], [role='option'], "
+            "[onclick], [tabindex]"
+        )
 
         filtered_elements = []
 
-        for el in all_elements:
+        for el in elements:
             try:
                 if not el.is_displayed():
                     continue
-
-                tag = el.tag_name
 
                 text = (
                     el.text
@@ -89,22 +104,6 @@ def get_interactive_elements(session_id: str):
                     or ""
                 ).strip()
 
-                role_attr = el.get_attribute("role")
-                onclick = el.get_attribute("onclick")
-                tabindex = el.get_attribute("tabindex")
-                input_type = el.get_attribute("type")
-
-                # Interaction heuristic (modern UI safe)
-                is_interactive = (
-                    tag in ["button", "a", "input", "select", "textarea"]
-                    or role_attr in ["button", "link", "tab", "option"]
-                    or onclick is not None
-                    or tabindex is not None
-                )
-
-                if not is_interactive:
-                    continue
-
                 if not text:
                     continue
 
@@ -113,16 +112,13 @@ def get_interactive_elements(session_id: str):
             except Exception:
                 continue
 
-        # Deduplicate elements (avoid noisy UI)
+        # Deduplicate
         unique_elements = []
         seen = set()
 
         for el in filtered_elements:
             try:
-                key = (
-                    el.text.strip(),
-                    el.tag_name
-                )
+                key = (el.text.strip(), el.tag_name)
 
                 if key in seen:
                     continue
@@ -133,7 +129,6 @@ def get_interactive_elements(session_id: str):
             except Exception:
                 continue
 
-        # Cache elements
         element_cache[session_id] = unique_elements
 
         for i, el in enumerate(unique_elements):
@@ -144,7 +139,6 @@ def get_interactive_elements(session_id: str):
 
                 role = tag
 
-                # Role normalization
                 if tag == "input":
                     if input_type in ["text", "search"]:
                         role = "textbox"
