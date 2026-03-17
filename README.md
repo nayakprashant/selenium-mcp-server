@@ -67,6 +67,8 @@ flowchart TD
 - Screenshot capture
 - Page text extraction
 - Headless browser support
+- Multi-tab browser management (open, switch, close, track active tab)
+- Improved interactive element detection for modern UI frameworks (React, Angular, dynamic DOM)
 
 ## INSTALLATION
 
@@ -108,7 +110,26 @@ Each browser session is identified by a `session_id`.
 2. open_url
 3. wait_for_page
 4. get_interactive_elements
-5. click_element or type_into_element
+5. (optional) get_tabs / switch_tab if multiple tabs are present
+6. click_element or type_into_element
+
+## MULTI-TAB WORKFLOW
+
+Agents can work with multiple tabs within the same browser session.
+
+### Example workflow:
+1. open_browser  
+2. open_url  
+3. open_new_tab("https://example.com")  
+4. get_tabs  
+5. switch_tab(index)  
+6. perform actions  
+7. close_tab(index)  
+
+### Notes
+- Each tab is tracked using an internal index.
+- The active tab is automatically managed and updated.
+- All actions are performed on the currently active tab.
 
 ## AVAILABLE MCP TOOLS
 ### BROWSER CONTROL
@@ -125,11 +146,26 @@ Each browser session is identified by a `session_id`.
 5. `wait_for_page` – Wait for page to load  
 6. `get_page_title` – Get the current page title  
 
+### TAB MANAGEMENT
+1. `get_tabs` – Retrieve all open tabs in the current session  
+2. `switch_tab` – Switch to a specific tab using index  
+3. `open_new_tab` – Open a new tab and optionally navigate to a URL  
+4. `close_tab` – Close a specific tab by index  
+5. `get_current_tab` – Retrieve the currently active tab  
+6. `name_tab` – Assign a custom name to a tab for easier identification  
+
+These tools allow agents to manage multiple tabs within a single browser session.
+
 ### ELEMENT DISCOVERY
 1. `get_interactive_elements` – Discover visible interactive elements on the page  
 2. `get_accessibility_tree` – Retrieve simplified accessibility tree for the page  
 
 These tools allow agents to understand the UI structure before interacting with it.
+
+#### Notes
+- Element detection is optimized for modern web applications (React, Angular, dynamic UI frameworks).
+- Elements are identified using interaction signals such as roles, click handlers, and focusability.
+- Only visible and meaningful elements are returned to reduce noise.
 
 ### INTERACTION TOOLS
 1. `click_element` – Click an element by index  
@@ -208,24 +244,20 @@ All screenshots will then be saved to the specified directory.
 ## EXAMPLE AGENT WORKFLOW
 
 ### Example task: 
-Search Google for "Selenium MCP"
+1. Open Chrome browser.
+2. Navigate to Google.com
+3. Type the text "Selenium MCP" in the search box.
+4. Press the search button
 
 #### Agent steps:
 ```python
 open_browser
-
 open_url("https://google.com")
-
 wait_for_page
-
 get_interactive_elements
-
 type_into_element(index, "Selenium MCP")
-
 click_element(index)
-
 wait_for_page
-
 get_page_text
 ```
 ## SYSTEM PROMPT FOR AI AGENTS
@@ -441,8 +473,8 @@ Note: Windows paths in JSON require double backslashes (`\\`).
 
 ## REQUIREMENTS
 * Python 3.10+
-* Selenium
 * Web browser
+* Selenium
 * webdriver-manager
 * MCP Python SDK
 

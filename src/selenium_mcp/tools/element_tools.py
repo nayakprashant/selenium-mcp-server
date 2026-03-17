@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 
 from selenium_mcp.utils.logger import logger
 
-INTERACTIVE_SELECTOR = "button, a, input, textarea, select"
+INTERACTIVE_SELECTOR = "*"
 
 
 @mcp.tool()
@@ -14,12 +14,14 @@ def get_interactive_elements(session_id: str):
 
     Purpose
     -------
-    This tool scans the page for commonly interactive HTML elements such as:
-        - buttons
-        - links
-        - input fields
-        - textareas
-        - dropdowns
+    This tool scans the page for interactive elements using a performance-optimized
+    selector that works across modern web applications (React, Angular, dynamic UIs).
+
+    It identifies elements based on interaction signals such as:
+        - semantic HTML tags (button, input, link)
+        - ARIA roles (button, link, tab, option)
+        - click handlers (onclick)
+        - focusable elements (tabindex)
 
     The discovered elements are returned with an assigned `index`. This index
     must be used when interacting with elements using tools such as:
@@ -43,14 +45,14 @@ def get_interactive_elements(session_id: str):
     Parameters
     ----------
     session_id : str
-        Active browser session identifier returned by `open_browser`.
+        Active browser session identifier.
 
     Returns
     -------
     dict
         {
             "session_id": str,
-            "count": number_of_interactive_elements_found,
+            "count": int,
             "elements": [
                 {
                     "index": int,
@@ -64,11 +66,11 @@ def get_interactive_elements(session_id: str):
 
     Notes
     -----
-    - The returned `index` is required for all element interaction tools.
-    - Always call this tool before attempting to click, read, or type into elements.
-    - The elements are cached internally for the current session so that
-      subsequent actions operate on the same DOM elements.
+    - The returned `index` is required for all interaction tools.
+    - Only visible and meaningful elements are returned to reduce noise.
+    - This tool is optimized for speed and avoids scanning the entire DOM.
     """
+
     log_info = f"get_interactive_elements: session ID = {session_id}"
     logger.info(f"Getting interactive elements - {log_info}")
 
@@ -79,53 +81,107 @@ def get_interactive_elements(session_id: str):
     try:
         driver = get_driver(session_id)
 
-        '''
+        # Optimized selector (fast + modern UI safe)
         elements = driver.find_elements(
             By.CSS_SELECTOR,
-            "button, a, input, textarea, select"
+            "button, a, input, textarea, select, "
+            "[role='button'], [role='link'], [role='tab'], [role='option'], "
+            "[onclick], [tabindex]"
         )
-        '''
-        elements = [
-            el for el in driver.find_elements(
-                By.CSS_SELECTOR,
-                "button, a, input, textarea, select"
-            )
-            if el.is_displayed()
-        ]
-        element_cache[session_id] = elements
 
-        for i, el in enumerate(elements):
-            '''
-            text= el.text or el.get_attribute(
-                "value") or el.get_attribute("placeholder") or ""
-            '''
-            role = el.tag_name
+        filtered_elements = []
 
-            if role == "input":
-                role = "textbox"
+        for el in elements:
+            try:
+                if not el.is_displayed():
+                    continue
 
-            if role == "a":
-                role = "link"
+                text = (
+                    el.text
+                    or el.get_attribute("aria-label")
+                    or el.get_attribute("placeholder")
+                    or el.get_attribute("value")
+                    or ""
+                ).strip()
 
-            label = (
-                el.text
-                or el.get_attribute("aria-label")
-                or el.get_attribute("placeholder")
-                or el.get_attribute("name")
-                or el.get_attribute("value")
-                or ""
-            )
-            result.append({
-                "index": i,
-                "role": role,
-                "label": label
-            })
+                if not text:
+                    continue
 
-            status = "success"
-            message = "Interactive elements captured successfully"
+                filtered_elements.append(el)
+
+            except Exception:
+                continue
+
+        # Deduplicate
+        unique_elements = []
+        seen = set()
+
+        for el in filtered_elements:
+            try:
+                key = (el.text.strip(), el.tag_name)
+
+                if key in seen:
+                    continue
+
+                seen.add(key)
+                unique_elements.append(el)
+
+            except Exception:
+                continue
+
+        element_cache[session_id] = unique_elements
+
+        for i, el in enumerate(unique_elements):
+            try:
+                tag = el.tag_name
+                role_attr = el.get_attribute("role")
+                input_type = el.get_attribute("type")
+
+                role = tag
+
+                if tag == "input":
+                    if input_type in ["text", "search"]:
+                        role = "textbox"
+                    elif input_type in ["radio", "checkbox"]:
+                        role = "option"
+                    else:
+                        role = "input"
+
+                elif tag == "a":
+                    role = "link"
+
+                elif role_attr == "button":
+                    role = "button"
+
+                elif role_attr == "link":
+                    role = "link"
+
+                elif role_attr == "option":
+                    role = "option"
+
+                label = (
+                    el.text
+                    or el.get_attribute("aria-label")
+                    or el.get_attribute("placeholder")
+                    or el.get_attribute("name")
+                    or el.get_attribute("value")
+                    or ""
+                ).strip()
+
+                result.append({
+                    "index": i,
+                    "role": role,
+                    "label": label
+                })
+
+            except Exception:
+                continue
+
+        status = "success"
+        message = "Interactive elements captured successfully"
 
     except Exception:
-        logger.exception(f"")
+        logger.exception(f"Error - {log_info}")
         result = []
         message = "Could not capture interactive elements"
 
