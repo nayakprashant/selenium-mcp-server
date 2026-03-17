@@ -1,5 +1,3 @@
-from os import EX_CANTCREAT
-
 from selenium_mcp.core.mcp_instance import mcp
 from selenium_mcp.core.browser_factory import create_driver
 from selenium_mcp.core.session_manager import *
