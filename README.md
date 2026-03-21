@@ -547,9 +547,6 @@ Note: Windows paths in JSON require double backslashes (`\\`).
 ## REQUIREMENTS
 * Python 3.10+
 * Web browser
-* Selenium
-* webdriver-manager
-* MCP Python SDK
 
 ## USE CASES
 
