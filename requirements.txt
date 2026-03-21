@@ -1,3 +1,4 @@
 mcp
 selenium
 webdriver-manager
+uvicorn

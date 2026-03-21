@@ -29,9 +29,9 @@ This makes it possible to build AI-powered browser automation systems and autono
 - [Features](#features)
 - [Installation](#installation)
 - [Running the Server](#running-the-server)
-- [Testing the Server](#testing-the-server)
-- [Browser Session Flow](#browser-session-flow)
+- [MCP Server Version](#mcp-server-version)
 - [Available MCP Tools](#available-mcp-tools)
+- [Browser Session Flow](#browser-session-flow)
 - [Example Agent Workflow](#example-agent-workflow)
 - [System Prompt for AI Agents](#system-prompt-for-ai-agents)
 - [Prompt Customization](#prompt-customization)
@@ -102,57 +102,77 @@ pip install selenium-mcp
 ## RUNNING THE SERVER
 
 #### Start the MCP server
+You can start the Selenium MCP server using different transport modes depending on your use case.
+
+##### Default (STDIO)
 ```bash
 selenium-mcp run
 ```
-This launches the Selenium MCP server and exposes browser automation tools to AI agents.
 
-## TESTING THE SERVER
-Run the following command to verify that the MCP server is running correctly:
+* Uses stdio transport
+* Best for local agent integrations
+* No network exposure
+
+##### HTTP Mode (Recommended)
 ```bash
-selenium-mcp check 
-```
-This script checks whether the Selenium MCP server is initialized successfully and whether the required tools are available.
-
-If the server is set up correctly, you should see the following message in the terminal:
-
-```bash
-MCP Server sanity check passed
+selenium-mcp run --transport http --host 127.0.0.1 --port 3345
 ```
 
-If the setup fails, the terminal will display an error message indicating that the sanity check did not pass.
+Starts server at: `http://127.0.0.1:3345`
 
-## BROWSER SESSION FLOW
+MCP endpoint: `http://127.0.0.1:3345/mcp`
 
-Each browser session is identified by a `session_id`.
+Best for:
+* API integrations
+* Postman / curl testing
+* production-style usage
 
-### Typical workflow for agents:
-1. open_browser
-2. open_url
-3. wait_for_page
-4. get_interactive_elements
-5. (optional) get_tabs / switch_tab if multiple tabs are present
-6. click_element or type_into_element
+##### SSE Mode (Streaming)
+```bash
+selenium-mcp run --transport sse --host 127.0.0.1 --port 3345
+```
+Starts server at: `http://127.0.0.1:3345/sse`
 
-## MULTI-TAB WORKFLOW
+Best for:
+* streaming-based agents
+* real-time interactions
 
-Agents can work with multiple tabs within the same browser session.
+Note: Note: SSE endpoints are streaming and may not show output directly in the browser.
 
-### Example workflow:
-1. open_browser  
-2. open_url  
-3. open_new_tab("https://example.com")  
-4. get_tabs  
-5. switch_tab(index)  
-6. perform actions  
-7. close_tab(index)  
+##### Expose Server on Network:
+```bash
+selenium-mcp run --transport http --host 0.0.0.0 --port 3345
+```
 
-### Notes
-- Each tab is tracked using an internal index.
-- The active tab is automatically managed and updated.
-- All actions are performed on the currently active tab.
+Makes server accessible from:
+* other devices on the same network
+* Docker / VM environments
+
+##### Notes:
+Default port: `3336`
+Supported transports:
+```bash
+stdio (default)
+http
+sse
+```
+
+Ensure port is within range: `1–65535`
+
+## MCP SERVER VERSION
+To check the current version of the selenium MCP server, run the following command:
+```bash
+selenium-mcp version
+```
 
 ## AVAILABLE MCP TOOLS
+
+Run the following command to get the list of tools supported by MCP server:
+```bash
+selenium-mcp tools 
+```
+This returns the list of tools supported by MCP server.
+
 ### BROWSER CONTROL
 1. `open_browser` – Launch a new browser session  
 2. `close_browser` – Close the browser session  
@@ -261,6 +281,38 @@ All screenshots will then be saved to the specified directory.
 * The folder is **created automatically** the first time a screenshot is taken.
 * The `.selenium-mcp` directory is **hidden by default** because it starts with a dot (`.`).
 * You can safely delete screenshots anytime.
+
+
+## BROWSER SESSION FLOW
+
+Each browser session is identified by a `session_id`.
+
+### Typical workflow for agents:
+1. open_browser
+2. open_url
+3. wait_for_page
+4. get_interactive_elements
+5. (optional) get_tabs / switch_tab if multiple tabs are present
+6. click_element or type_into_element
+
+## MULTI-TAB WORKFLOW
+
+Agents can work with multiple tabs within the same browser session.
+
+### Example workflow:
+1. open_browser  
+2. open_url  
+3. open_new_tab("https://example.com")  
+4. get_tabs  
+5. switch_tab(index)  
+6. perform actions  
+7. close_tab(index)  
+
+### Notes
+- Each tab is tracked using an internal index.
+- The active tab is automatically managed and updated.
+- All actions are performed on the currently active tab.
+
 
 ## EXAMPLE AGENT WORKFLOW
 
@@ -404,7 +456,7 @@ dir
 ## CONFIGURE YOUR MCP CLIENT
 Add the Selenium MCP server to your MCP client configuration.
 
-Example configuration:
+**Example STDIO mode:**
 ```json
 {
   "mcpServers": {
@@ -414,7 +466,36 @@ Example configuration:
   }
 }
 ```
-This tells the MCP client how to start the Selenium MCP server.
+This tells the MCP client how to start the Selenium MCP server using stdio mode.
+
+**Example HTTP mode:**
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp",
+      "args": ["run", "--transport", "http", "host", "127.0.0.1",  "--port", "3345"]
+    }
+  }
+}
+```
+* Runs MCP server over HTTP
+* Endpoint: http://127.0.0.1:3345/mcp
+
+**Example SSE mode:**
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp",
+      "args": ["run", "--transport", "sse", "host", "127.0.0.1", "--port", "3345"]
+    }
+  }
+}
+```
+* Runs MCP server with streaming (SSE) transport
+* Useful for real-time agent interactions
+* Endpoint:  http://127.0.0.1:3345/sse
 
 ### Client Examples
 #### Claude Desktop
@@ -428,6 +509,8 @@ Config file location:
 ```bash
 %APPDATA%\Claude\claude_desktop_config.json
 ```
+
+##### STDIO – Works for Claude Desktop
 Add
 ```json
 {
@@ -438,7 +521,11 @@ Add
   }
 }
 ```
-Restart Claude Desktop after updating the configuration.
+**Restart Claude Desktop after updating the configuration.**
+
+* Uses stdio transport
+* Works out of the box with Claude Desktop
+* No additional configuration required
 
 ### Troubleshooting
 If you encounter issues while setting up or running Selenium MCP, try the following solutions.
@@ -495,9 +582,6 @@ Note: Windows paths in JSON require double backslashes (`\\`).
 ## REQUIREMENTS
 * Python 3.10+
 * Web browser
-* Selenium
-* webdriver-manager
-* MCP Python SDK
 
 ## USE CASES
 
