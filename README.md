@@ -118,8 +118,6 @@ selenium-mcp run
 selenium-mcp run --transport http --host 127.0.0.1 --port 3345
 ```
 
-Starts server at: `http://127.0.0.1:3345`
-
 MCP endpoint: `http://127.0.0.1:3345/mcp`
 
 Best for:
@@ -131,7 +129,7 @@ Best for:
 ```bash
 selenium-mcp run --transport sse --host 127.0.0.1 --port 3345
 ```
-Starts server at: `http://127.0.0.1:3345/sse`
+SSE endpoint: `http://127.0.0.1:3345/sse`
 
 Best for:
 * streaming-based agents
