@@ -480,6 +480,8 @@ Config file location:
 ```bash
 %APPDATA%\Claude\claude_desktop_config.json
 ```
+
+##### Default (STDIO – Recommended for Claude Desktop)
 Add
 ```json
 {
@@ -491,6 +493,41 @@ Add
 }
 ```
 Restart Claude Desktop after updating the configuration.
+
+* Uses stdio transport
+* Works out of the box with Claude Desktop
+* No additional configuration required
+
+##### Optional: HTTP Mode
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp",
+      "args": ["run", "--transport", "http", "--port", "3345"]
+    }
+  }
+}
+```
+
+* Runs MCP server over HTTP
+* Endpoint: `http://127.0.0.1:3345/mcp`
+
+##### Optional: SSE Mode
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp",
+      "args": ["run", "--transport", "sse", "--port", "3345"]
+    }
+  }
+}
+```
+* Runs MCP server with streaming (SSE) transport
+* Useful for real-time agent interactions
+
+**After Updating, Restart Claude Desktop for changes to take effect.**
 
 ### Troubleshooting
 If you encounter issues while setting up or running Selenium MCP, try the following solutions.
