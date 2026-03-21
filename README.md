@@ -456,7 +456,7 @@ dir
 ## CONFIGURE YOUR MCP CLIENT
 Add the Selenium MCP server to your MCP client configuration.
 
-Example configuration:
+**Example STDIO mode:**
 ```json
 {
   "mcpServers": {
@@ -466,7 +466,35 @@ Example configuration:
   }
 }
 ```
-This tells the MCP client how to start the Selenium MCP server.
+This tells the MCP client how to start the Selenium MCP server using stdio mode.
+
+**Example HTTP mode:**
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp",
+      "args": ["run", "--transport", "http", "--port", "3345"]
+    }
+  }
+}
+```
+* Runs MCP server over HTTP
+* Endpoint: http://127.0.0.1:3345/mcp
+
+**Example SSE mode:**
+```json
+{
+  "mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp",
+      "args": ["run", "--transport", "sse", "--port", "3345"]
+    }
+  }
+}
+```
+* Runs MCP server with streaming (SSE) transport
+* Useful for real-time agent interactions
 
 ### Client Examples
 #### Claude Desktop
@@ -481,7 +509,7 @@ Config file location:
 %APPDATA%\Claude\claude_desktop_config.json
 ```
 
-##### Default (STDIO – Recommended for Claude Desktop)
+##### STDIO – Works for Claude Desktop
 Add
 ```json
 {
