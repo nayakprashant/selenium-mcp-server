@@ -474,7 +474,7 @@ This tells the MCP client how to start the Selenium MCP server using stdio mode.
   "mcpServers": {
     "selenium-mcp": {
       "command": "selenium-mcp",
-      "args": ["run", "--transport", "http", "--port", "3345"]
+      "args": ["run", "--transport", "http", "host", "127.0.0.1",  "--port", "3345"]
     }
   }
 }
@@ -488,13 +488,14 @@ This tells the MCP client how to start the Selenium MCP server using stdio mode.
   "mcpServers": {
     "selenium-mcp": {
       "command": "selenium-mcp",
-      "args": ["run", "--transport", "sse", "--port", "3345"]
+      "args": ["run", "--transport", "sse", "host", "127.0.0.1", "--port", "3345"]
     }
   }
 }
 ```
 * Runs MCP server with streaming (SSE) transport
 * Useful for real-time agent interactions
+* Endpoint:  http://127.0.0.1:3345/sse
 
 ### Client Examples
 #### Claude Desktop
