@@ -102,25 +102,69 @@ pip install selenium-mcp
 ## RUNNING THE SERVER
 
 #### Start the MCP server
+You can start the Selenium MCP server using different transport modes depending on your use case.
+
+##### Default (STDIO)
 ```bash
 selenium-mcp run
 ```
-This launches the Selenium MCP server and exposes browser automation tools to AI agents.
 
-## TESTING THE SERVER
-Run the following command to verify that the MCP server is running correctly:
+* Uses stdio transport
+* Best for local agent integrations
+* No network exposure
+
+##### HTTP Mode (Recommended)
 ```bash
-selenium-mcp check 
-```
-This script checks whether the Selenium MCP server is initialized successfully and whether the required tools are available.
-
-If the server is set up correctly, you should see the following message in the terminal:
-
-```bash
-MCP Server sanity check passed
+selenium-mcp run --transport http --host 127.0.0.1 --port 3345
 ```
 
-If the setup fails, the terminal will display an error message indicating that the sanity check did not pass.
+Starts server at: `http://127.0.0.1:3345`
+
+MCP endpoint: `http://127.0.0.1:3345/mcp`
+
+Best for:
+* API integrations
+* Postman / curl testing
+* production-style usage
+
+##### SSE Mode (Streaming)
+```bash
+selenium-mcp run --transport sse --host 127.0.0.1 --port 3345
+```
+Starts server at: `http://127.0.0.1:3345/sse`
+
+Best for:
+* streaming-based agents
+* real-time interactions
+
+Note: Note: SSE endpoints are streaming and may not show output directly in the browser.
+
+*** Expose Server on Network ***
+```bash
+selenium-mcp run --transport http --host 0.0.0.0 --port 3345
+```
+
+Makes server accessible from:
+* other devices on the same network
+* Docker / VM environments
+
+*** Notes ***
+Default port: `3336`
+Supported transports:
+```bash
+stdio (default)
+http
+sse
+```
+
+Ensure port is within range: `1–65535`
+
+## GET TOOLS INFORMATION
+Run the following command to get the list of tools supported by MCP server:
+```bash
+selenium-mcp tools 
+```
+This check returns the list of tools supported by MCP server.
 
 ## BROWSER SESSION FLOW
 

@@ -54,9 +54,9 @@ def run_server(transport: str = "stdio", host: str = "127.0.0.1", port: int = 33
             f"Error encountered while starting the server. Details - {e}")
 
 
-async def sanity_check():
-    """Run sanity check and list registered MCP tools."""
-    print("\nRunning Selenium MCP Server sanity check...\n")
+async def get_tools():
+    """Get list registered MCP tools."""
+    print("\nGetting list of tools...\n")
 
     try:
         tools = await mcp.list_tools()
@@ -74,10 +74,8 @@ async def sanity_check():
         print(f"Total tools registered: {len(tool_names)}")
         print("-----------------------------")
 
-        print("\nMCP Server sanity check passed\n")
-
     except Exception as e:
-        print("\nMCP Server sanity check failed")
+        print("\nMCP Tools could not be fetched")
         print(str(e))
 
 
@@ -97,7 +95,7 @@ def main():
             "command",
             nargs="?",
             default="run",
-            choices=["run", "check", "version"],
+            choices=["run", "tools", "version"],
             help="Command to run"
         )
 
@@ -131,8 +129,8 @@ def main():
                 port=args.port
             )
 
-        elif args.command == "check":
-            asyncio.run(sanity_check())
+        elif args.command == "tools":
+            asyncio.run(get_tools())
 
         elif args.command == "version":
             show_version()
