@@ -29,9 +29,9 @@ This makes it possible to build AI-powered browser automation systems and autono
 - [Features](#features)
 - [Installation](#installation)
 - [Running the Server](#running-the-server)
-- [Testing the Server](#testing-the-server)
-- [Browser Session Flow](#browser-session-flow)
+- [MCP Server Version](#mcp-server-version)
 - [Available MCP Tools](#available-mcp-tools)
+- [Browser Session Flow](#browser-session-flow)
 - [Example Agent Workflow](#example-agent-workflow)
 - [System Prompt for AI Agents](#system-prompt-for-ai-agents)
 - [Prompt Customization](#prompt-customization)
@@ -159,44 +159,20 @@ sse
 
 Ensure port is within range: `1–65535`
 
-## GET TOOLS INFORMATION
+## MCP SERVER VERSION
+To check the current version of the selenium MCP server, run the following command:
+```bash
+selenium-mcp version
+```
+
+## AVAILABLE MCP TOOLS
+
 Run the following command to get the list of tools supported by MCP server:
 ```bash
 selenium-mcp tools 
 ```
-This check returns the list of tools supported by MCP server.
+This returns the list of tools supported by MCP server.
 
-## BROWSER SESSION FLOW
-
-Each browser session is identified by a `session_id`.
-
-### Typical workflow for agents:
-1. open_browser
-2. open_url
-3. wait_for_page
-4. get_interactive_elements
-5. (optional) get_tabs / switch_tab if multiple tabs are present
-6. click_element or type_into_element
-
-## MULTI-TAB WORKFLOW
-
-Agents can work with multiple tabs within the same browser session.
-
-### Example workflow:
-1. open_browser  
-2. open_url  
-3. open_new_tab("https://example.com")  
-4. get_tabs  
-5. switch_tab(index)  
-6. perform actions  
-7. close_tab(index)  
-
-### Notes
-- Each tab is tracked using an internal index.
-- The active tab is automatically managed and updated.
-- All actions are performed on the currently active tab.
-
-## AVAILABLE MCP TOOLS
 ### BROWSER CONTROL
 1. `open_browser` – Launch a new browser session  
 2. `close_browser` – Close the browser session  
@@ -305,6 +281,38 @@ All screenshots will then be saved to the specified directory.
 * The folder is **created automatically** the first time a screenshot is taken.
 * The `.selenium-mcp` directory is **hidden by default** because it starts with a dot (`.`).
 * You can safely delete screenshots anytime.
+
+
+## BROWSER SESSION FLOW
+
+Each browser session is identified by a `session_id`.
+
+### Typical workflow for agents:
+1. open_browser
+2. open_url
+3. wait_for_page
+4. get_interactive_elements
+5. (optional) get_tabs / switch_tab if multiple tabs are present
+6. click_element or type_into_element
+
+## MULTI-TAB WORKFLOW
+
+Agents can work with multiple tabs within the same browser session.
+
+### Example workflow:
+1. open_browser  
+2. open_url  
+3. open_new_tab("https://example.com")  
+4. get_tabs  
+5. switch_tab(index)  
+6. perform actions  
+7. close_tab(index)  
+
+### Notes
+- Each tab is tracked using an internal index.
+- The active tab is automatically managed and updated.
+- All actions are performed on the currently active tab.
+
 
 ## EXAMPLE AGENT WORKFLOW
 
