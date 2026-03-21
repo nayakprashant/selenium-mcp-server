@@ -139,7 +139,7 @@ Best for:
 
 Note: Note: SSE endpoints are streaming and may not show output directly in the browser.
 
-*** Expose Server on Network ***
+###### Expose Server on Network:
 ```bash
 selenium-mcp run --transport http --host 0.0.0.0 --port 3345
 ```
@@ -148,7 +148,7 @@ Makes server accessible from:
 * other devices on the same network
 * Docker / VM environments
 
-*** Notes ***
+###### Notes:
 Default port: `3336`
 Supported transports:
 ```bash
