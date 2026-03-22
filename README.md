@@ -52,6 +52,7 @@ pip install selenium-mcp
 
   ### Step 4
   Give instructions to the claude in the chat window.
+  
   Example:
   ```bash
   1. Open Chrome browser.
@@ -187,13 +188,14 @@ Makes server accessible from:
 
 ##### Notes:
 Default port: `3336`
+
 Supported transports:
+
 ```bash
 stdio (default)
 http
 sse
 ```
-
 Ensure port is within range: `1–65535`
 
 ## MCP SERVER VERSION
@@ -434,6 +436,7 @@ Logs are written to:
 ```
 
 Features:
+
 * Daily log file rotation
 * Automatic cleanup of older log files
 * Logs written to both console and file
