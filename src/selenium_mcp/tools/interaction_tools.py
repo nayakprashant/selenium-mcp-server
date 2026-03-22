@@ -1,6 +1,7 @@
 from selenium_mcp.core.mcp_instance import mcp
 from selenium_mcp.core.session_manager import *
 from selenium_mcp.utils.logger import logger
+from selenium_mcp.tools.element_tools import resolve_element
 
 
 @mcp.tool()
@@ -61,35 +62,32 @@ def click_element(session_id: str, index: int):
     log_info = f"click_element: session ID = {session_id}, index = {index}"
     logger.info(f"Clicking element - {log_info}")
 
-    status = "success"
+    status = "failure"
     message = None
 
     try:
-
         driver = get_driver(session_id)
         elements = element_cache.get(session_id)
 
         if not elements:
-            status = "failure"
-            message = "No elements cached. Call get_interactive_elements first."
             return {
                 "session_id": session_id,
                 "index": -1,
-                "status": status,
-                "message": message
+                "status": "failure",
+                "message": "No elements cached. Call get_interactive_elements first."
             }
 
         if index >= len(elements):
-            status = "failure"
-            message = "Invalid element index"
             return {
                 "session_id": session_id,
                 "index": -1,
-                "status": status,
-                "message": message
+                "status": "failure",
+                "message": "Invalid element index"
             }
 
-        element = elements[index]
+        element_dict = elements[index]
+        element = resolve_element(driver, element_dict)
+
         driver.execute_script("arguments[0].scrollIntoView(true);", element)
         element.click()
 
@@ -179,14 +177,31 @@ def type_into_element(session_id: str, index: int, text: str):
         elements = element_cache.get(session_id)
 
         if not elements:
-            message = "No elements cached"
-        else:
-            element = elements[index]
-            element.clear()
-            element.send_keys(text)
+            return {
+                "session_id": session_id,
+                "index": index,
+                "text_to_type": text,
+                "status": "failure",
+                "message": "No elements cached"
+            }
 
-            status = "success"
-            message = "Text entered"
+        if index >= len(elements):
+            return {
+                "session_id": session_id,
+                "index": index,
+                "text_to_type": text,
+                "status": "failure",
+                "message": "Invalid element index"
+            }
+
+        element_dict = elements[index]
+        element = resolve_element(driver, element_dict)
+
+        element.clear()
+        element.send_keys(text)
+
+        status = "success"
+        message = "Text entered"
 
     except Exception:
         logger.exception(f"Error - {log_info}")

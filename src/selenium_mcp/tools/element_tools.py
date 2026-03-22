@@ -1,3 +1,4 @@
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium_mcp.core.mcp_instance import mcp
 from selenium_mcp.core.session_manager import *
 from selenium.webdriver.common.by import By
@@ -10,43 +11,15 @@ INTERACTIVE_SELECTOR = "*"
 @mcp.tool()
 def get_interactive_elements(session_id: str):
     """
-    Retrieve visible interactive elements from the current web page.
-
+    Retrieve visible, top-level interactive elements with stable locators.
     Purpose
     -------
-    This tool scans the page for interactive elements using a performance-optimized
-    selector that works across modern web applications (React, Angular, dynamic UIs).
-
-    It identifies elements based on interaction signals such as:
-        - semantic HTML tags (button, input, link)
-        - ARIA roles (button, link, tab, option)
-        - click handlers (onclick)
-        - focusable elements (tabindex)
-
-    The discovered elements are returned with an assigned `index`. This index
-    must be used when interacting with elements using tools such as:
-        - click_element
-        - type_into_element
-
-    The function also stores the discovered Selenium elements in an internal
-    session cache so that subsequent tools can safely interact with the exact
-    same elements without re-querying the DOM.
-
-    Recommended Agent Workflow
-    --------------------------
-    1. Navigate to a webpage using `open_url`.
-    2. Wait for the page to fully load using `wait_for_page`.
-    3. Call `get_interactive_elements` to discover UI elements.
-    4. Review the returned list of elements and identify the correct element.
-    5. Use the provided `index` with tools like:
-        - `click_element(index)`
-        - `type_into_element(index, text)`
-
+    This tool scans the current webpage for interactive elements (buttons, links, inputs, etc.) and returns a list of those that are visible and not obscured by others.
+    Each element is assigned a unique index that can be used with `click_element` to interact with it. The tool prioritizes elements that are likely to be meaningful for user interaction, using heuristics based on HTML semantics and accessibility attributes.
     Parameters
     ----------
     session_id : str
-        Active browser session identifier.
-
+        Active browser session identifier returned by `open_browser`.
     Returns
     -------
     dict
@@ -56,142 +29,334 @@ def get_interactive_elements(session_id: str):
             "elements": [
                 {
                     "index": int,
+                    "tag": str,
+                    "label": str,
                     "role": str,
-                    "label": str
-                }
+                    "context": str,
+                    "xpath": str,
+                    "css": str,
+                    "bbox": {"x": int, "y": int, "width": int, "height": int}
+                },
+                ...
             ],
             "status": str,
             "message": str
         }
-
     Notes
     -----
-    - The returned `index` is required for all interaction tools.
-    - Only visible and meaningful elements are returned to reduce noise.
-    - This tool is optimized for speed and avoids scanning the entire DOM.
+    - The tool uses a combination of heuristics to identify interactive elements, including HTML tags, ARIA roles, and visual cues like cursor style and visibility.
+    - Elements that are hidden, have zero size, or are obscured by other elements are filtered out to ensure that returned elements are actually interactable.
+    - The returned `index` values are stable for the current page state and can be used with `click_element` to perform interactions.
+    - The tool also handles elements within iframes by switching context and applying the same heuristics, ensuring a comprehensive capture of interactive elements across the entire page.
     """
 
-    log_info = f"get_interactive_elements: session ID = {session_id}"
-    logger.info(f"Getting interactive elements - {log_info}")
+    driver = get_driver(session_id)
+    driver.switch_to.default_content()
 
-    status = "failure"
-    message = None
-    result = []
+    WebDriverWait(driver, 10).until(
+        lambda d: d.execute_script("return document.readyState") == "complete"
+    )
+
+    script = """
+    function getXPath(el) {
+        try {
+            if (el.id) return `//*[@id="${el.id}"]`;
+
+            const parts = [];
+            while (el && el.nodeType === Node.ELEMENT_NODE) {
+                let index = 1;
+                let sibling = el.previousElementSibling;
+
+                while (sibling) {
+                    if (sibling.tagName === el.tagName) index++;
+                    sibling = sibling.previousElementSibling;
+                }
+
+                parts.unshift(`${el.tagName.toLowerCase()}[${index}]`);
+                el = el.parentElement;
+            }
+
+            return "/" + parts.join("/");
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function getCssSelector(el) {
+        try {
+            if (el.id) return `#${el.id}`;
+
+            if (el.getAttribute("name")) {
+                return `${el.tagName.toLowerCase()}[name="${el.getAttribute("name")}"]`;
+            }
+
+            if (el.getAttribute("aria-label")) {
+                return `${el.tagName.toLowerCase()}[aria-label="${el.getAttribute("aria-label")}"]`;
+            }
+
+            return el.tagName.toLowerCase();
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function isInViewport(rect) {
+        return (
+            rect.bottom > 0 &&
+            rect.right > 0 &&
+            rect.top < window.innerHeight &&
+            rect.left < window.innerWidth
+        );
+    }
+
+    function isClickable(el) {
+        const tag = el.tagName;
+        const role = el.getAttribute('role');
+        const style = window.getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+
+        if (
+            rect.width === 0 ||
+            rect.height === 0 ||
+            !isInViewport(rect)
+        ) return false;
+
+        const isSemantic =
+            tag === 'BUTTON' ||
+            tag === 'A' ||
+            tag === 'INPUT' ||
+            tag === 'SELECT' ||
+            tag === 'TEXTAREA' ||
+            role === 'button' ||
+            role === 'link' ||
+            el.isContentEditable;
+
+        const hasStrongHint =
+            el.getAttribute('tabindex') !== null ||
+            el.onclick !== null;
+
+        const hasPointer = style.cursor === 'pointer';
+        const hasText = (el.innerText || el.getAttribute('aria-label') || "").trim().length > 0;
+
+        return isSemantic || hasStrongHint || (hasPointer && hasText);
+    }
+
+    function isTopMostClickable(el) {
+        let parent = el.parentElement;
+
+        while (parent) {
+            if (isClickable(parent)) return false;
+            parent = parent.parentElement;
+        }
+
+        return true;
+    }
+
+    function getLabel(el) {
+        try {
+            const tag = el.tagName;
+
+            if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                return (
+                    el.getAttribute('aria-label') ||
+                    el.getAttribute('placeholder') ||
+                    el.getAttribute('name') ||
+                    el.getAttribute('value') ||
+                    ''
+                ).trim();
+            }
+
+            return (
+                el.getAttribute('aria-label') ||
+                (el.innerText || "").split("\\n")[0] ||
+                el.getAttribute('placeholder') ||
+                el.getAttribute('name') ||
+                el.getAttribute('value') ||
+                ''
+            ).trim();
+        } catch (e) {
+            return "";
+        }
+    }
+
+    function getContext(el) {
+        try {
+            let parent = el.parentElement;
+            if (!parent) return "";
+
+            return (
+                parent.getAttribute('aria-label') ||
+                parent.getAttribute('id') ||
+                parent.getAttribute('class') ||
+                parent.tagName
+            ).slice(0, 100);
+        } catch (e) {
+            return "";
+        }
+    }
+
+    function inferRole(el) {
+        const tag = el.tagName.toLowerCase();
+        const role = el.getAttribute('role');
+        const type = el.getAttribute('type');
+
+        if (tag === 'button') return 'button';
+        if (tag === 'a') return 'link';
+
+        if (tag === 'input') {
+            if (type === 'text' || type === 'search') return 'textbox';
+            if (type === 'checkbox' || type === 'radio') return 'option';
+        }
+
+        if (tag === 'select') return 'select';
+        if (role) return role;
+
+        return tag;
+    }
+
+    function collect(root) {
+        const results = [];
+
+        function traverse(node) {
+            if (!node || node.nodeType !== 1) return;
+
+            try {
+                if (isClickable(node) && isTopMostClickable(node)) {
+                    const label = getLabel(node);
+
+                    if (label && label.length > 0) {
+                        const rect = node.getBoundingClientRect();
+
+                        results.push({
+                            tag: node.tagName.toLowerCase(),
+                            label: label,
+                            role: inferRole(node),
+                            context: getContext(node),
+
+                            xpath: getXPath(node),
+                            css: getCssSelector(node),
+
+                            bbox: {
+                                x: rect.x || 0,
+                                y: rect.y || 0,
+                                width: rect.width || 0,
+                                height: rect.height || 0
+                            }
+                        });
+                    }
+                }
+
+                if (node.shadowRoot) {
+                    traverse(node.shadowRoot);
+                }
+
+                for (let child of node.children) {
+                    traverse(child);
+                }
+
+            } catch (e) {}
+        }
+
+        traverse(root);
+        return results;
+    }
+
+    return collect(document.body);
+    """
+
+    raw_elements = []
 
     try:
-        driver = get_driver(session_id)
+        raw_elements.extend(driver.execute_script(script))
+    except Exception:
+        pass
 
-        # Optimized selector (fast + modern UI safe)
-        elements = driver.find_elements(
-            By.CSS_SELECTOR,
-            "button, a, input, textarea, select, "
-            "[role='button'], [role='link'], [role='tab'], [role='option'], "
-            "[onclick], [tabindex]"
-        )
+    # iframe handling
+    try:
+        iframes = driver.find_elements(By.CSS_SELECTOR, "iframe")
 
-        filtered_elements = []
-
-        for el in elements:
+        for iframe in iframes:
             try:
-                if not el.is_displayed():
-                    continue
+                driver.switch_to.frame(iframe)
 
-                text = (
-                    el.text
-                    or el.get_attribute("aria-label")
-                    or el.get_attribute("placeholder")
-                    or el.get_attribute("value")
-                    or ""
-                ).strip()
+                WebDriverWait(driver, 3).until(
+                    lambda d: d.execute_script(
+                        "return document.readyState") == "complete"
+                )
 
-                if not text:
-                    continue
-
-                filtered_elements.append(el)
+                raw_elements.extend(driver.execute_script(script))
+                driver.switch_to.parent_frame()
 
             except Exception:
+                driver.switch_to.parent_frame()
                 continue
-
-        # Deduplicate
-        unique_elements = []
-        seen = set()
-
-        for el in filtered_elements:
-            try:
-                key = (el.text.strip(), el.tag_name)
-
-                if key in seen:
-                    continue
-
-                seen.add(key)
-                unique_elements.append(el)
-
-            except Exception:
-                continue
-
-        element_cache[session_id] = unique_elements
-
-        for i, el in enumerate(unique_elements):
-            try:
-                tag = el.tag_name
-                role_attr = el.get_attribute("role")
-                input_type = el.get_attribute("type")
-
-                role = tag
-
-                if tag == "input":
-                    if input_type in ["text", "search"]:
-                        role = "textbox"
-                    elif input_type in ["radio", "checkbox"]:
-                        role = "option"
-                    else:
-                        role = "input"
-
-                elif tag == "a":
-                    role = "link"
-
-                elif role_attr == "button":
-                    role = "button"
-
-                elif role_attr == "link":
-                    role = "link"
-
-                elif role_attr == "option":
-                    role = "option"
-
-                label = (
-                    el.text
-                    or el.get_attribute("aria-label")
-                    or el.get_attribute("placeholder")
-                    or el.get_attribute("name")
-                    or el.get_attribute("value")
-                    or ""
-                ).strip()
-
-                result.append({
-                    "index": i,
-                    "role": role,
-                    "label": label
-                })
-
-            except Exception:
-                continue
-
-        status = "success"
-        message = "Interactive elements captured successfully"
 
     except Exception:
-        logger.exception(f"Error - {log_info}")
-        result = []
-        message = "Could not capture interactive elements"
+        pass
+
+    # Dedup
+    unique = []
+    seen = set()
+
+    for el in raw_elements:
+        try:
+            key = (
+                el.get("role"),
+                el.get("label"),
+                int(el.get("bbox", {}).get("x", 0)),
+                int(el.get("bbox", {}).get("y", 0))
+            )
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+            unique.append(el)
+
+        except Exception:
+            continue
+
+    # Index
+    for i, el in enumerate(unique):
+        el["index"] = i
+
+    element_cache[session_id] = unique
+
+    logger.info(
+        f"""Found {len(unique)} interactive elements - session ID = {session_id}""")
+    logger.debug(f"Interactive elements: {unique}")
 
     return {
-        "session_id": session_id,
-        "count": len(result),
-        "elements": result,
-        "status": status,
-        "message": message
+        "status": "success",
+        "count": len(unique),
+        "elements": unique
     }
+
+
+def resolve_element(driver, element_dict):
+    """
+    Resolve a cached element dictionary into a Selenium WebElement.
+
+    Priority:
+    1. xpath
+    2. css
+    3. fallback → fail fast
+    """
+
+    if not isinstance(element_dict, dict):
+        raise Exception("Invalid element format. Expected dict.")
+
+    try:
+        if element_dict.get("xpath"):
+            return driver.find_element(By.XPATH, element_dict["xpath"])
+
+        if element_dict.get("css"):
+            return driver.find_element(By.CSS_SELECTOR, element_dict["css"])
+
+        raise Exception("No valid locator found in element")
+
+    except Exception as e:
+        raise Exception(f"Element resolution failed: {str(e)}")
 
 
 @mcp.tool()
