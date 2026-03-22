@@ -22,6 +22,45 @@ It enables LLMs and autonomous agents to perform tasks like:
 
 This makes it possible to build AI-powered browser automation systems and autonomous QA agents.
 
+## TRY-IT-OUT IN 30 SECONDS
+**Pre-requisite:** 
+* Install Python 3.10+
+* Claude Desktop
+
+### Step 1
+```bash
+pip install selenium-mcp
+```
+### Step 2
+* Open `Claude Desktop`
+* Navigate to `Settings`
+* Click on `Developer` tab
+* Click on `Edit config`
+* Open `claude_desktop_config.json` in editor
+* Add the following:
+```json
+"mcpServers": {
+    "selenium-mcp": {
+      "command": "selenium-mcp"
+    }
+  }
+  ```
+  * Save the file
+
+  ### Step 3
+  Quit `Claude Desktop` and restart it
+
+  ### Step 4
+  Give instructions to the claude in the chat window.
+  Example:
+  ```bash
+  1. Open Chrome browser.
+  2. Navigate to Google.com
+  3. Type the text "Selenium MCP" in the search box.
+  4. Press the search button
+  ```
+  Claude Desktop will open chrome browser and perform instructions as requested.
+
 ## Table of Contents
 
 - [Why This Project Exists](#why-this-project-exists)
