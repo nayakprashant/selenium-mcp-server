@@ -2,6 +2,13 @@ from selenium_mcp.core.mcp_instance import mcp
 from selenium_mcp.core.session_manager import *
 from selenium_mcp.utils.logger import logger
 from selenium_mcp.tools.element_tools import resolve_element
+from selenium.webdriver.common.keys import Keys
+
+
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    StaleElementReferenceException
+)
 
 
 @mcp.tool()
@@ -57,8 +64,11 @@ def click_element(session_id: str, index: int):
     Notes
     -----
     The tool automatically scrolls the element into view before clicking
-    to ensure it is visible and interactable.
+    to ensure it is visible and interactable. It uses a retry mechanism
+    to handle stale element references and implements automatic fallback
+    to JavaScript-based clicking if standard Selenium clicks are blocked.
     """
+
     log_info = f"click_element: session ID = {session_id}, index = {index}"
     logger.info(f"Clicking element - {log_info}")
 
@@ -86,13 +96,50 @@ def click_element(session_id: str, index: int):
             }
 
         element_dict = elements[index]
-        element = resolve_element(driver, element_dict)
 
-        driver.execute_script("arguments[0].scrollIntoView(true);", element)
-        element.click()
+        # Retry loop (handles stale + timing issues)
+        for attempt in range(2):
+            try:
+                element = resolve_element(driver, element_dict)
 
-        status = "success"
-        message = "Element clicked successfully"
+                # Scroll to center (better than top)
+                driver.execute_script(
+                    "arguments[0].scrollIntoView({block: 'center'});",
+                    element
+                )
+
+                # Try normal click
+                try:
+                    element.click()
+                except ElementClickInterceptedException:
+                    # Fallback: JS click (bypasses overlays)
+                    driver.execute_script("arguments[0].click();", element)
+
+                status = "success"
+                message = "Element clicked successfully"
+                break
+
+            except StaleElementReferenceException:
+                # Re-resolve on stale element
+                if attempt == 1:
+                    raise
+                continue
+
+            except Exception:
+                # Final fallback: force JS click
+                try:
+                    element = resolve_element(driver, element_dict)
+                    driver.execute_script("arguments[0].click();", element)
+
+                    status = "success"
+                    message = "Element clicked successfully (JS fallback)"
+                    break
+                except Exception:
+                    if attempt == 1:
+                        raise
+
+        if status != "success":
+            message = f"Element at index {index} could not be clicked"
 
     except Exception:
         logger.exception(f"Error - {log_info}")
@@ -164,8 +211,11 @@ def type_into_element(session_id: str, index: int, text: str):
     Notes
     -----
     This tool automatically clears any existing text in the element
-    before entering the new text.
+    before entering the new text. It scrolls the element into view,
+    ensures focus by clicking the element, and includes retry logic
+    to handle stale element references and timing issues.
     """
+
     log_info = f"type_into_element: session ID = {session_id}, index = {index}, text = {text}"
     logger.info(f"Typing into element - {log_info}")
 
@@ -195,13 +245,45 @@ def type_into_element(session_id: str, index: int, text: str):
             }
 
         element_dict = elements[index]
-        element = resolve_element(driver, element_dict)
 
-        element.clear()
-        element.send_keys(text)
+        # 🔁 Try twice (handles stale / timing issues)
+        for attempt in range(2):
+            try:
+                element = resolve_element(driver, element_dict)
 
-        status = "success"
-        message = "Text entered"
+                # 🔹 Scroll into view (centered)
+                driver.execute_script(
+                    "arguments[0].scrollIntoView({block: 'center'});",
+                    element
+                )
+
+                # 🔹 Ensure focus (CRITICAL)
+                try:
+                    element.click()
+                except Exception:
+                    driver.execute_script("arguments[0].click();", element)
+
+                # 🔹 Safe clear
+                try:
+                    element.clear()
+                except Exception:
+                    element.send_keys(Keys.CONTROL + "a")
+                    element.send_keys(Keys.DELETE)
+
+                # 🔹 Type
+                element.send_keys(text)
+
+                status = "success"
+                message = "Text entered"
+                break
+
+            except Exception:
+                # Retry once with fresh resolution
+                if attempt == 1:
+                    raise
+
+        if status != "success":
+            message = "Could not type into element"
 
     except Exception:
         logger.exception(f"Error - {log_info}")
